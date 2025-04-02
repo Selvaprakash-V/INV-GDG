@@ -8,11 +8,13 @@ Chart.register(...registerables);
 export default function InventoryDashboard() {
     const stockChartRef = useRef(null);
     const salesChartRef = useRef(null);
+    const stockChartInstance = useRef<Chart | null>(null);
+    const salesChartInstance = useRef<Chart | null>(null);
 
     useEffect(() => {
-        if (stockChartRef.current && salesChartRef.current) {
-            // Stock Levels Chart
-            new Chart(stockChartRef.current, {
+        if (stockChartRef.current) {
+            if (stockChartInstance.current) stockChartInstance.current.destroy(); // Destroy previous chart
+            stockChartInstance.current = new Chart(stockChartRef.current, {
                 type: 'bar',
                 data: {
                     labels: ['Electronics', 'Clothing', 'Groceries', 'Accessories', 'Furniture'],
@@ -23,9 +25,11 @@ export default function InventoryDashboard() {
                     }]
                 }
             });
+        }
 
-            // Sales Trends Chart
-            new Chart(salesChartRef.current, {
+        if (salesChartRef.current) {
+            if (salesChartInstance.current) salesChartInstance.current.destroy(); // Destroy previous chart
+            salesChartInstance.current = new Chart(salesChartRef.current, {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -39,6 +43,12 @@ export default function InventoryDashboard() {
                 }
             });
         }
+
+        // Cleanup on unmount
+        return () => {
+            if (stockChartInstance.current) stockChartInstance.current.destroy();
+            if (salesChartInstance.current) salesChartInstance.current.destroy();
+        };
     }, []);
 
     return (

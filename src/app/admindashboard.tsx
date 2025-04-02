@@ -1,41 +1,44 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
 export default function InventoryDashboard() {
-    useEffect(() => {
-        // Stock Levels Chart
-        const stockChartCtx = document.getElementById('stockChart').getContext('2d');
-        new Chart(stockChartCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Electronics', 'Clothing', 'Groceries', 'Accessories', 'Furniture'],
-                datasets: [{
-                    label: 'Stock Quantity',
-                    data: [80, 50, 100, 40, 30],
-                    backgroundColor: ['#FFD700', '#FF5733', '#28B463', '#3498DB', '#8E44AD']
-                }]
-            }
-        });
+    const stockChartRef = useRef(null);
+    const salesChartRef = useRef(null);
 
-        // Sales Trends Chart
-        const salesChartCtx = document.getElementById('salesChart').getContext('2d');
-        new Chart(salesChartCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Sales ($)',
-                    data: [5000, 7000, 8000, 12000, 15000, 20000],
-                    borderColor: '#38bdf8',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            }
-        });
+    useEffect(() => {
+        if (stockChartRef.current && salesChartRef.current) {
+            // Stock Levels Chart
+            new Chart(stockChartRef.current, {
+                type: 'bar',
+                data: {
+                    labels: ['Electronics', 'Clothing', 'Groceries', 'Accessories', 'Furniture'],
+                    datasets: [{
+                        label: 'Stock Quantity',
+                        data: [80, 50, 100, 40, 30],
+                        backgroundColor: ['#FFD700', '#FF5733', '#28B463', '#3498DB', '#8E44AD']
+                    }]
+                }
+            });
+
+            // Sales Trends Chart
+            new Chart(salesChartRef.current, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Sales ($)',
+                        data: [5000, 7000, 8000, 12000, 15000, 20000],
+                        borderColor: '#38bdf8',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                }
+            });
+        }
     }, []);
 
     return (
@@ -70,11 +73,11 @@ export default function InventoryDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="bg-white p-5 rounded-lg shadow-md">
                         <h3 className="text-xl font-semibold text-gray-700 mb-4">Stock Levels</h3>
-                        <canvas id="stockChart"></canvas>
+                        <canvas ref={stockChartRef}></canvas>
                     </div>
                     <div className="bg-white p-5 rounded-lg shadow-md">
                         <h3 className="text-xl font-semibold text-gray-700 mb-4">Sales Trends</h3>
-                        <canvas id="salesChart"></canvas>
+                        <canvas ref={salesChartRef}></canvas>
                     </div>
                 </div>
             </div>

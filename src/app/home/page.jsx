@@ -27,7 +27,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-800 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-violet-100 to-purple-200 text-gray-800 font-sans">
       {/* Header */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 shadow-md backdrop-blur-sm' : 'bg-transparent'}`}>
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">

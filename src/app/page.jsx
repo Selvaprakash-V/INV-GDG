@@ -15,7 +15,8 @@ export default function Home() {
       <Link href="/dashboard">Dashboard</Link>
       <Link href="/exploreseller">Explore Seller</Link>
       <Link href="/explorecustomer">Explore Customer</Link>
-      <Link href="/signup">Sign Up</Link>
+      <Link href="/administratorsignup">Admin Sign Up</Link>
+      <Link href="/customersignup">Customer Sign Up</Link>
       <Link href="/login">Login</Link>
     </div>
   );

@@ -25,6 +25,7 @@ export default function ContactPage() {
           easing: 'ease-in-out',
           once: true
         });
+       
 
         // Initialize anime.js for text glow effect
         const anime = await import('animejs');

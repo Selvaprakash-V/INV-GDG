@@ -1,102 +1,100 @@
-// src/app/role/page.jsx
-"use client";
+'use client';
 
-import Head from 'next/head';
-import Link from 'next/link';
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import { Store, User } from 'lucide-react';
 
 export default function RoleSelection() {
-  useEffect(() => {
-    // Add any client-side animation logic here if needed
-  }, []);
+  const roles = [
+    {
+      title: "Administrator",
+      description: "Manage your supermarket inventory and track expiry dates",
+      icon: <Store className="w-12 h-12 text-purple-600" />,
+      href: "/administratorsignup",
+      bgColor: "bg-purple-100",
+      hoverColor: "hover:bg-purple-200"
+    },
+    {
+      title: "Customer",
+      description: "Track your purchases and receive expiry alerts",
+      icon: <User className="w-12 h-12 text-purple-600" />,
+      href: "/customersignup",
+      bgColor: "bg-purple-50",
+      hoverColor: "hover:bg-purple-100"
+    }
+  ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white relative">
-      <Head>
-        <title>Select Role - INNOVAID</title>
-      </Head>
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100 flex flex-col items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-12"
+      >
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          Select Your <span className="text-purple-600">Role</span>
+        </h1>
+        <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+          Choose whether you're a supermarket administrator or a customer
+        </p>
+      </motion.div>
 
-      <style jsx global>{`
-        body {
-          background: #0d0d0d;
-          color: #ddd;
-        }
-        .fade-in {
-          opacity: 0;
-          transform: scale(0.9);
-          animation: fadeIn 0.6s forwards;
-        }
-        @keyframes fadeIn {
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        .role-btn {
-          transition: transform 0.3s ease-in-out, box-shadow 0.3s;
-        }
-        .role-btn:hover {
-          transform: scale(1.05);
-          box-shadow: 0 0 20px rgba(212, 89, 6, 0.7);
-        }
-      `}</style>
-
-      {/* Title */}
-          <h1 className="absolute top-20 text-5xl font-extrabold text-orange-500 fade-in">SELECT YOUR ROLE</h1>
-          <motion.div 
-  initial={{ opacity: 0, scale: 0.9 }}
-  animate={{ opacity: 1, scale: 1 }}
-  transition={{ duration: 0.6 }}
->
-  {/* content */}
-</motion.div>
-
-      <div className="flex w-full h-screen items-center">
-        {/* Left Half (Administrator) */}
-        <div className="w-1/2 h-full relative flex items-center justify-center">
-          <img 
-            src="https://media.istockphoto.com/id/1413206511/photo/woman-paying-by-credit-card-at-the-supermarket.jpg?s=612x612&w=0&k=20&c=QsmTIiVo8tivCqr5mPiCEHdTbI-MP8sbT1mmCmBugfc=" 
-            alt="Administrator Image" 
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
-          />
-          
-          {/* Administrator Role Button */}
-          <Link 
-            href="/administratorsignup" 
-            className="role-btn w-64 bg-orange-600 text-black font-bold py-6 rounded-lg text-2xl shadow-lg hover:bg-orange-700 flex flex-col items-center z-10"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto w-full">
+        {roles.map((role, index) => (
+          <motion.div
+            key={role.title}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            whileHover={{ y: -5 }}
+            className="w-full"
           >
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
-              alt="Admin Icon" 
-              className="w-16 h-16 mb-2"
-            />
-            Administrator
-          </Link>
-        </div>
-        
-        {/* Right Half (Customer) */}
-        <div className="w-1/2 h-full relative flex items-center justify-center">
-          <img 
-            src="https://vitaminretailer.com/wp-content/uploads/2022/08/RF-Customer-Service.jpg" 
-            alt="Customer Image" 
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
-          />
-
-          {/* Customer Role Button */}
-          <Link 
-            href="/customersignup" 
-            className="role-btn w-64 bg-yellow-500 text-black font-bold py-6 rounded-lg text-2xl shadow-lg hover:bg-yellow-600 flex flex-col items-center z-10"
-          >
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/456/456283.png" 
-              alt="Customer Icon" 
-              className="w-16 h-16 mb-2"
-            />
-            Customer
-          </Link>
-        </div>
+            <Card className={`h-full border border-gray-200 hover:border-purple-300 transition-all duration-300 shadow-sm hover:shadow-md ${role.bgColor} ${role.hoverColor}`}>
+              <CardHeader className="items-center">
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  className="p-4 bg-white rounded-full shadow-sm"
+                >
+                  {role.icon}
+                </motion.div>
+                <CardTitle className="text-2xl text-gray-800 mt-4">
+                  {role.title}
+                </CardTitle>
+                <CardDescription className="text-gray-600">
+                  {role.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center">
+                <Link href={role.href} className="w-full">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                      Continue as {role.title}
+                    </Button>
+                  </motion.div>
+                </Link>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="mt-12 text-gray-600"
+      >
+        Already have an account?{' '}
+        <Link href="/login" className="text-purple-600 font-medium hover:text-purple-700">
+          Login here
+        </Link>
+      </motion.div>
     </div>
   );
 }

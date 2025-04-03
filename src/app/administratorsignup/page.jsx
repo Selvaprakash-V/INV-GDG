@@ -1,9 +1,14 @@
-'use client'; // This component uses client-side interactivity
+'use client';
 
-import { useState } from 'react';
-import styles from './page.module.css';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { useState } from 'react';
+import { Lock, Mail, Store, CheckCircle2 } from 'lucide-react';
 
 export default function AdminSignupPage() {
   const [formData, setFormData] = useState({
@@ -18,6 +23,8 @@ export default function AdminSignupPage() {
     password: false,
     confirmPassword: false
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -35,8 +42,9 @@ export default function AdminSignupPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     // Regex for validation
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
@@ -56,101 +64,192 @@ export default function AdminSignupPage() {
     const hasErrors = Object.values(newErrors).some(error => error);
     
     if (!hasErrors) {
-      // Form is valid, redirect to admin dashboard
-      router.push('/admin/dashboard');
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setIsSuccess(true);
+      
+      // Redirect after showing success
+      setTimeout(() => {
+        router.push('/admin/dashboard');
+      }, 2000);
     }
+    setIsSubmitting(false);
   };
 
   return (
-    <div className={styles.mainContainer}>
-      {/* Slightly Blurred Background */}
-      <div className={styles.backgroundContainer}></div>
-      <div className={styles.overlay}></div>
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <Card className="bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
+          <CardHeader className="text-center">
+            <motion.div
+              initial={{ y: -20 }}
+              animate={{ y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Store className="w-12 h-12 mx-auto text-purple-600 mb-4" />
+            </motion.div>
+            <CardTitle className="text-2xl font-bold text-gray-800">
+              Administrator Signup
+            </CardTitle>
+            <CardDescription className="text-gray-600">
+              Register your supermarket account
+            </CardDescription>
+          </CardHeader>
 
-      <div className={styles.card}>
-        <h2 className="text-2xl font-bold text-yellow-400 mb-6">Administrator Signup</h2>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Shop Name */}
+              <div className="space-y-2">
+                <Label htmlFor="shopName" className="text-gray-800">
+                  Shop Name
+                </Label>
+                <div className="relative">
+                  <Store className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="shopName"
+                    type="text"
+                    placeholder="Enter your shop name"
+                    value={formData.shopName}
+                    onChange={handleChange}
+                    className={`pl-10 ${errors.shopName ? 'border-red-500' : ''}`}
+                  />
+                </div>
+                {errors.shopName && (
+                  <motion.p 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500"
+                  >
+                    Shop name is required
+                  </motion.p>
+                )}
+              </div>
 
-        <form id="adminSignupForm" onSubmit={handleSubmit}>
-          {/* Shop Name */}
-          <div className={styles.inputGroup}>
-            <span className={styles.icon}>🏪</span>
-            <input
-              type="text"
-              id="shopName"
-              placeholder="Shop Name"
-              required
-              value={formData.shopName}
-              onChange={handleChange}
-            />
-          </div>
-          {errors.shopName && (
-            <p className={styles.error}>⚠️ Shop Name is required!</p>
-          )}
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-800">
+                  Email
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+                  />
+                </div>
+                {errors.email && (
+                  <motion.p 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500"
+                  >
+                    Please enter a valid email
+                  </motion.p>
+                )}
+              </div>
 
-          {/* Email */}
-          <div className={styles.inputGroup}>
-            <span className={styles.icon}>📧</span>
-            <input
-              type="email"
-              id="email"
-              placeholder="Email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
-          {errors.email && (
-            <p className={styles.error}>⚠️ Please enter a valid email!</p>
-          )}
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-gray-800">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Create a password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`pl-10 ${errors.password ? 'border-red-500' : ''}`}
+                  />
+                </div>
+                {errors.password && (
+                  <motion.p 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500"
+                  >
+                    Must be 8+ chars with uppercase, lowercase, and number
+                  </motion.p>
+                )}
+              </div>
 
-          {/* Password */}
-          <div className={styles.inputGroup}>
-            <span className={styles.icon}>🔒</span>
-            <input
-              type="password"
-              id="password"
-              placeholder="Password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </div>
+              {/* Confirm Password */}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-gray-800">
+                  Confirm Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className={`pl-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                  />
+                </div>
+                {errors.confirmPassword && (
+                  <motion.p 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500"
+                  >
+                    Passwords don't match
+                  </motion.p>
+                )}
+              </div>
 
-          {/* Confirm Password */}
-          <div className={styles.inputGroup}>
-            <span className={styles.icon}>🔒</span>
-            <input
-              type="password"
-              id="confirmPassword"
-              placeholder="Confirm Password"
-              required
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
-          </div>
+              {isSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 p-3 bg-green-50 text-green-600 rounded-md"
+                >
+                  <CheckCircle2 className="h-5 w-5" />
+                  <span>Registration successful! Redirecting...</span>
+                </motion.div>
+              )}
 
-          {/* Error Messages */}
-          {errors.password && (
-            <p className={styles.error}>
-              ⚠️ Password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  type="submit"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Creating account...' : 'Sign Up'}
+                </Button>
+              </motion.div>
+            </form>
+          </CardContent>
+
+          <CardFooter className="flex justify-center">
+            <p className="text-sm text-gray-600">
+              Already registered?{' '}
+              <Link
+                href="/login"
+                className="text-purple-600 font-medium hover:text-purple-700"
+              >
+                Login here
+              </Link>
             </p>
-          )}
-          {errors.confirmPassword && (
-            <p className={styles.error}>⚠️ Passwords do not match!</p>
-          )}
-
-          <button type="submit" className={styles.btn}>
-            Sign Up
-          </button>
-        </form>
-
-        <p className="mt-4 text-gray-400">
-          Already registered?{' '}
-          <Link href="/login" className="text-yellow-300 font-semibold">
-            Login
-          </Link>
-        </p>
-      </div>
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
   );
 }

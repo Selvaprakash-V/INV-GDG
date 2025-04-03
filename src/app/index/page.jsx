@@ -1,27 +1,41 @@
-"use client";
+"use client";  // Add this line at the top
+
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function HomePage() {
+  const [circles, setCircles] = useState([]);
+
+  useEffect(() => {
+    const generatedCircles = [...Array(10)].map(() => ({
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      backgroundColor: `hsl(${Math.random() * 360}, 100%, 75%)`,
+      duration: Math.random() * 3 + 2,
+    }));
+    setCircles(generatedCircles);
+  }, []);
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-      {/* Floating Colorful Circles Animation */}
+      {/* Floating Colorful Circles */}
       <div className="absolute inset-0">
-        {[...Array(10)].map((_, i) => (
+        {circles.map((circle, i) => (
           <motion.div
             key={i}
             className="absolute w-24 h-24 rounded-full opacity-50"
             style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              backgroundColor: `hsl(${Math.random() * 360}, 100%, 75%)`,
+              top: circle.top,
+              left: circle.left,
+              backgroundColor: circle.backgroundColor,
             }}
             animate={{
               y: [0, 30, -30, 0],
               x: [0, 20, -20, 0],
             }}
             transition={{
-              duration: Math.random() * 3 + 2,
+              duration: circle.duration,
               repeat: Infinity,
               ease: "easeInOut",
             }}

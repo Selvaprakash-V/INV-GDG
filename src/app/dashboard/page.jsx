@@ -3,13 +3,14 @@
 import { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
 
+
 Chart.register(...registerables);
 
 export default function InventoryDashboard() {
     const stockChartRef = useRef(null);
     const salesChartRef = useRef(null);
-    const stockChartInstance = useRef<Chart | null>(null);
-    const salesChartInstance = useRef<Chart | null>(null);
+    const stockChartInstance = useRef(null);
+    const salesChartInstance = useRef(null);
 
     useEffect(() => {
         if (stockChartRef.current) {

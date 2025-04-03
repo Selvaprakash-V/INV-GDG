@@ -1,123 +1,72 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+
+import { useEffect } from "react";
 import { motion } from "framer-motion";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 export default function Home() {
-    const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
 
-    useEffect(() => {
-        import("aos").then((AOS) => AOS.default.init({ duration: 1000 }));
-    }, []);
+  return (
+    <div className="bg-black text-white min-h-screen">
+      {/* Navbar */}
+      <header className="fixed w-full bg-opacity-90 backdrop-blur-lg p-4 shadow-lg border-b border-gray-700 z-50 flex justify-between items-center px-6">
+        <h1 className="text-xl font-bold text-yellow-400">INNOVAID</h1>
+        <nav>
+          <ul className="flex space-x-6">
+            <li className="hover:text-yellow-400 transition-colors cursor-pointer">Home</li>
+            <li className="hover:text-yellow-400 transition-colors cursor-pointer">About</li>
+            <li className="hover:text-yellow-400 transition-colors cursor-pointer">Contact</li>
+          </ul>
+        </nav>
+      </header>
 
-    return (
-        <div className="bg-gradient-to-b from-purple-900 via-indigo-700 to-blue-600 text-white min-h-screen">
-            {/* Header */}
-            <header className="bg-gradient-to-r from-pink-600 to-red-500 text-white p-4 fixed w-full z-50 shadow-lg">
-                <div className="container mx-auto flex justify-between items-center">
-                    <motion.h1
-                        className="text-4xl font-extrabold tracking-wide"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.8 }}
-                    >
-                        INNOVAID
-                    </motion.h1>
+      {/* Hero Section */}
+      <section className="flex flex-col items-center justify-center h-screen text-center px-4">
+        <motion.h2 initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="text-5xl font-bold text-yellow-400">
+          Smart Expiry Tracking for a Better Future
+        </motion.h2>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 1 }} className="mt-4 text-gray-300 max-w-xl">
+          Reduce waste and track expiry dates seamlessly with INNOVAID's AI-powered system.
+        </motion.p>
+      </section>
 
-                    {/* Navigation */}
-                    <nav className="hidden md:flex items-center space-x-6">
-                        <Link href="/about" className="hover:text-yellow-300 transition-all duration-300">About</Link>
-                        <Link href="/contact" className="hover:text-yellow-300 transition-all duration-300">Contact</Link>
-                        <Button variant="outline" className="border-white text-white hover:bg-yellow-300 hover:text-black shadow-md">Login</Button>
-                    </nav>
-
-                    {/* Mobile Menu */}
-                    <motion.button
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        className="md:hidden"
-                        initial={{ scale: 1 }}
-                        animate={{ rotate: menuOpen ? 90 : 0 }}
-                        transition={{ duration: 0.4 }}
-                    >
-                        <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-                        </svg>
-                    </motion.button>
-                </div>
-
-                {/* Mobile Dropdown */}
-                {menuOpen && (
-                    <motion.div
-                        className="md:hidden bg-pink-600 p-4 text-center shadow-lg rounded-lg"
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                    >
-                        <Link href="/about" className="block py-2 hover:text-yellow-300">About</Link>
-                        <Link href="/contact" className="block py-2 hover:text-yellow-300">Contact</Link>
-                        <Button variant="outline" className="block mt-2 border-white text-white hover:bg-yellow-300 hover:text-black shadow-lg">Login</Button>
-                    </motion.div>
-                )}
-            </header>
-
-            {/* Hero Section */}
-            <motion.section
-                className="text-center bg-gradient-to-b from-blue-800 to-blue-900 py-32"
-                data-aos="fade-up"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-            >
-                <h1 className="text-5xl font-bold drop-shadow-lg">Track Expiry, Minimize Waste, Maximize Awareness</h1>
-                <p className="text-lg text-gray-300 mt-4">INNOVAID helps track expiry smartly, reducing waste.</p>
-                <Button className="mt-6 bg-pink-600 text-white hover:bg-yellow-300 hover:text-black shadow-lg">
-                    Get Started
-                </Button>
-            </motion.section>
-
-            {/* Solutions */}
-            <motion.section
-                className="text-center py-16 bg-gradient-to-b from-indigo-800 via-blue-700 to-blue-900"
-                data-aos="fade-up"
-                initial={{ y: 50 }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.8 }}
-            >
-                <h2 className="text-3xl font-bold text-yellow-300">Smart Expiry Solutions</h2>
-                <p className="text-gray-300 mt-2">Track expiry trends & inventory alerts.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mt-8">
-                    <motion.div
-                        className="p-6 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg hover:scale-105 transition-transform"
-                        whileHover={{ scale: 1.05 }}
-                    >
-                        <h3 className="text-xl font-bold text-yellow-300">Shop Registration</h3>
-                        <p className="text-gray-300 mt-2">Manage your inventory efficiently.</p>
-                    </motion.div>
-                    <motion.div
-                        className="p-6 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg hover:scale-105 transition-transform"
-                        whileHover={{ scale: 1.05 }}
-                    >
-                        <h3 className="text-xl font-bold text-yellow-300">Expiry Trends</h3>
-                        <p className="text-gray-300 mt-2">Optimize inventory tracking.</p>
-                    </motion.div>
-                </div>
-            </motion.section>
-
-            {/* Footer */}
-            <motion.footer
-                className="bg-pink-600 text-white text-center p-3 shadow-md"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8 }}
-            >
-                <p>© 2025 INNOVAID. All Rights Reserved.</p>
-            </motion.footer>
+      {/* Features Section */}
+      <section className="py-20 px-6">
+        <h3 className="text-3xl font-semibold text-center text-yellow-400 mb-12">Why Choose INNOVAID?</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {[
+            { title: "AI-Powered Expiry Alerts", desc: "Get notified before your products expire, reducing waste effectively." },
+            { title: "Smart Inventory Management", desc: "Track and analyze stock levels with real-time insights." },
+            { title: "Consumer-Friendly App", desc: "Easily check expiry dates for recently purchased products." },
+          ].map((feature, index) => (
+            <motion.div key={index} whileHover={{ scale: 1.1 }} className="p-8 bg-gray-900 rounded-xl shadow-lg text-center transition-all">
+              <h4 className="text-2xl font-bold text-yellow-400">{feature.title}</h4>
+              <p className="text-gray-300 mt-3">{feature.desc}</p>
+            </motion.div>
+          ))}
         </div>
-    );
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 px-6 bg-gray-800">
+        <h3 className="text-3xl font-semibold text-center text-yellow-400 mb-12">How It Works</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {[
+            { title: "Step 1: Scan", desc: "Supermarkets scan product batches to register expiry dates." },
+            { title: "Step 2: Monitor", desc: "INNOVAID tracks expiry dates and alerts sellers & consumers." },
+            { title: "Step 3: Save", desc: "Enjoy fresh products while reducing unnecessary waste." },
+          ].map((step, index) => (
+            <motion.div key={index} whileHover={{ scale: 1.1 }} className="p-8 bg-gray-900 rounded-xl shadow-lg text-center transition-all">
+              <h4 className="text-2xl font-bold text-yellow-400">{step.title}</h4>
+              <p className="text-gray-300 mt-3">{step.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 }
-
-
-
-
-
-

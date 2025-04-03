@@ -1,21 +1,36 @@
-"use client";  // Add this line at the top
-
+"use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function HomePage() {
   const [circles, setCircles] = useState([]);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    const generatedCircles = [...Array(10)].map(() => ({
-      top: `${Math.random() * 100}%`,
-      left: `${Math.random() * 100}%`,
-      backgroundColor: `hsl(${Math.random() * 360}, 100%, 75%)`,
-      duration: Math.random() * 3 + 2,
-    }));
-    setCircles(generatedCircles);
-  }, []);
+    // Check for reduced motion preference
+    setReducedMotion(
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+
+    try {
+      const generatedCircles = Array.from({ length: reducedMotion ? 5 : 10 }).map(() => ({
+        top: `${Math.random() * 100}%`,
+        left: `${Math.random() * 100}%`,
+        backgroundColor: `hsl(${Math.random() * 360}, 100%, 75%)`,
+        duration: Math.random() * 3 + 2,
+        size: Math.random() * 40 + 20,
+      }));
+      setCircles(generatedCircles);
+    } catch (error) {
+      console.error("Error generating circles:", error);
+      // Fallback static circles if generation fails
+      setCircles([
+        { top: '20%', left: '10%', backgroundColor: 'hsl(120, 100%, 75%)', duration: 3, size: 30 },
+        { top: '70%', left: '80%', backgroundColor: 'hsl(240, 100%, 75%)', duration: 4, size: 40 }
+      ]);
+    }
+  }, [reducedMotion]);
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
@@ -24,16 +39,24 @@ export default function HomePage() {
         {circles.map((circle, i) => (
           <motion.div
             key={i}
-            className="absolute w-24 h-24 rounded-full opacity-50"
+            className="absolute rounded-full opacity-50"
             style={{
               top: circle.top,
               left: circle.left,
               backgroundColor: circle.backgroundColor,
+              width: `${circle.size}px`,
+              height: `${circle.size}px`,
             }}
-            animate={{
-              y: [0, 30, -30, 0],
-              x: [0, 20, -20, 0],
-            }}
+            initial={{ opacity: 0 }}
+            animate={
+              reducedMotion
+                ? { opacity: 0.5 }
+                : {
+                    y: [0, 30, -30, 0],
+                    x: [0, 20, -20, 0],
+                    opacity: 0.5,
+                  }
+            }
             transition={{
               duration: circle.duration,
               repeat: Infinity,
@@ -44,9 +67,9 @@ export default function HomePage() {
       </div>
 
       {/* Main Content */}
-      <div className="relative flex flex-col items-center justify-center h-full text-white text-center">
+      <div className="relative flex flex-col items-center justify-center h-full text-white text-center px-4">
         <motion.h1
-          className="text-5xl font-bold"
+          className="text-4xl md:text-5xl font-bold mb-4"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
@@ -55,38 +78,38 @@ export default function HomePage() {
         </motion.h1>
 
         <motion.p
-          className="mt-4 text-lg opacity-80"
+          className="mt-2 text-lg md:text-xl opacity-80 max-w-md mx-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1.5 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
         >
           Manage your products with ease and efficiency.
         </motion.p>
 
         <motion.div
-          className="mt-8 flex space-x-4"
+          className="mt-8 flex flex-col sm:flex-row gap-4 justify-center"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5 }}
+          transition={{ duration: 1.5, delay: 0.6 }}
         >
-          <Link href="/signup">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="px-6 py-3 bg-white text-purple-700 font-semibold rounded-lg shadow-md transition-all"
+          <Link href="/signup" passHref legacyBehavior>
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-3 bg-white text-purple-700 font-semibold rounded-lg shadow-md cursor-pointer block text-center"
             >
               Get Started
-            </motion.button>
+            </motion.a>
           </Link>
 
-          <Link href="/dashboard">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md transition-all"
+          <Link href="/dashboard" passHref legacyBehavior>
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md cursor-pointer block text-center"
             >
               Dashboard
-            </motion.button>
+            </motion.a>
           </Link>
         </motion.div>
       </div>

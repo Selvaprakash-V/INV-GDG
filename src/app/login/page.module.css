@@ -1,0 +1,169 @@
+/* General Styles */
+.container {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to right, #FFD700, #FFFACD);
+    /* Yellow gradient */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Floating Animation */
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+/* Centering Container */
+.mainContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Login & Signup Card */
+.card {
+    background: rgba(0, 0, 0, 0.9);
+    /* Black */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 350px;
+    backdrop-filter: blur(10px);
+    animation: float 3s infinite ease-in-out;
+}
+
+/* Title */
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #FFD700;
+    /* Yellow */
+    margin-bottom: 20px;
+}
+
+/* Role Selection Buttons */
+.roleSelection {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.roleBtn {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: 2px solid #dbb90f;
+    background: none;
+    color: #dbb90f;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.roleBtn:hover {
+    background: #dbb90f;
+    color: white;
+}
+
+/* Highlight Selected Role */
+.roleBtn.selected {
+    background: #dbb90f;
+    color: white;
+}
+
+/* Input Fields */
+.inputGroup {
+    position: relative;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    border: 2px solid #FFD700;
+    /* Yellow border */
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    /* White transparent */
+    padding: 8px;
+}
+
+/* Input Field Styling */
+.inputGroup input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+    background: transparent;
+    color: white;
+    /* White text */
+}
+
+/* Icons */
+.inputGroup .icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #FFD700;
+    /* Yellow icons */
+}
+
+/* Login Button */
+.loginBtn {
+    width: 100%;
+    background: #FFD700;
+    /* Yellow */
+    color: black;
+    /* Black text */
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.loginBtn:hover {
+    background: #FFA500;
+    /* Darker yellow (orange shade) */
+    transform: scale(1.05);
+}
+
+/* Register Link */
+.registerLink {
+    margin-top: 10px;
+    font-size: 14px;
+    color: white;
+}
+
+.registerLink a {
+    color: #FFD700;
+    /* Yellow */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.registerLink a:hover {
+    text-decoration: underline;
+}
+
+/* Error Message */
+.error {
+    color: #FFD700;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    display: none;
+}

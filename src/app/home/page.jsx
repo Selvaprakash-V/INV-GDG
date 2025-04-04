@@ -144,51 +144,6 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Trusted Brands */}
-      <section className="py-16 bg-white/50 overflow-hidden relative">
-        <div className="container mx-auto px-4">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-3xl font-bold text-center text-gray-800 mb-12"
-          >
-            Trusted by Leading Supermarkets & Brands Globally
-          </motion.h2>
-          
-          <div className="relative overflow-hidden py-4">
-            <div className="w-full h-24 relative">
-              <motion.div
-                className="absolute top-0 left-0 flex items-center gap-12 md:gap-24"
-                animate={{
-                  x: ['0%', '-100%'],
-                }}
-                transition={{
-                  duration: 30,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-              >
-                {[...trustedBrands, ...trustedBrands].map((brand, index) => (
-                  <motion.div
-                    key={`${brand.name}-${index}`}
-                    whileHover={{ scale: 1.1 }}
-                    className="flex-shrink-0 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all"
-                  >
-                    <img
-                      src={brand.logo}
-                      alt={brand.name}
-                      className="h-12 md:h-16 object-contain opacity-80 hover:opacity-100 transition-opacity"
-                    />
-                  </motion.div>
-                ))}
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Solutions */}
       <section className="py-16 bg-gradient-to-b from-white to-purple-50 relative">
         <div className="container mx-auto px-4">
@@ -199,6 +154,8 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
+            <h1 className="text-3xl font-bold text-gray-800">Trusted by Leading Supermarkets & Brands Globally</h1>
+            <br></br>
             <h2 className="text-3xl font-bold text-gray-800">Smart Expiry Solutions</h2>
             <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
               INNOVAID offers smart expiry tracking, inventory alerts, and QR-based tracking.

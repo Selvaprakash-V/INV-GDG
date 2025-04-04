@@ -18,6 +18,10 @@ export default function Home() {
       <Link href="/administratorsignup">Admin Sign Up</Link>
       <Link href="/customersignup">Customer Sign Up</Link>
       <Link href="/login">Login</Link>
+      <Link href="/contact">Contact</Link>
+      <Link href="admmindashboard">Admin Dashboard</Link>
+      <Link href="customerdashboard">Customer Dashboard</Link>
+
     </div>
   );
 }

@@ -1,112 +1,161 @@
-// src/app/explorecustomer/page.jsx
-"use client";
+'use client';
 
-import Head from 'next/head';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useEffect } from 'react';
-import dynamic from 'next/dynamic';
-
-// Dynamically import AOS with SSR disabled
-const AOS = dynamic(() => import('aos').then(mod => mod.default), { ssr: false });
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ScanSearch, BellRing, Package, Store, Lightbulb, Shield } from 'lucide-react';
 
 export default function ExploreCustomer() {
-  useEffect(() => {
-    // Initialize AOS when component mounts
-    if (typeof window !== 'undefined') {
-      import('aos').then((AOS) => {
-        AOS.default.init();
-      });
+  const features = [
+    {
+      icon: <BellRing className="w-8 h-8 text-purple-600" />,
+      title: "Expiry Alerts",
+      description: "Get notified when your purchased items are nearing expiry",
+      badge: "New"
+    },
+    {
+      icon: <ScanSearch className="w-8 h-8 text-purple-600" />,
+      title: "QR Tracking",
+      description: "Scan QR codes to instantly access product information",
+      badge: "Popular"
+    },
+    {
+      icon: <Package className="w-8 h-8 text-purple-600" />,
+      title: "Purchase History",
+      description: "View detailed records of all your past purchases",
+      badge: null
+    },
+    {
+      icon: <Store className="w-8 h-8 text-purple-600" />,
+      title: "Store Locator",
+      description: "Find affiliated supermarkets near you",
+      badge: null
+    },
+    {
+      icon: <Lightbulb className="w-8 h-8 text-purple-600" />,
+      title: "Smart Suggestions",
+      description: "Receive personalized recommendations based on your habits",
+      badge: "AI-Powered"
+    },
+    {
+      icon: <Shield className="w-8 h-8 text-purple-600" />,
+      title: "Account Security",
+      description: "Advanced protection for all your personal data",
+      badge: null
     }
-  }, []);
+  ];
 
   return (
-    <div className="relative min-h-screen">
-      <Head>
-        <title>Explore Customer Features</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
-      </Head>
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100">
+      {/* Header */}
+      <header className="fixed top-0 w-full z-50 bg-white/90 shadow-md backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Link href="/">
+              <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300 text-purple-600">
+                INNOVAID
+              </h1>
+            </Link>
+          </motion.div>
 
-      {/* Background styling */}
-      <style jsx global>{`
-        body {
-          background: url('https://media.istockphoto.com/id/1387134070/photo/smart-store-management-systems-concept.jpg?s=612x612&w=0&k=20&c=zkk0Bxn5wvdL9SBlmAYx-hrZ_v_lQPxWVfocTj0HtHg=') no-repeat center center fixed;
-          background-size: cover;
-          color: #fff;
-          margin: 0;
-        }
-        body::before {
-          content: '';
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          z-index: -1;
-        }
-      `}</style>
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link href="/">
+              <Button variant="ghost" className="text-gray-800 hover:text-purple-600">
+                Back to Home
+              </Button>
+            </Link>
+          </nav>
+        </div>
+      </header>
 
-      {/* Features Section */}
-      <section className="text-center py-20 px-4">
-        <h2 className="absolute top-16 left-0 right-0 text-3xl font-bold text-orange-500">
-          Explore Customer Features
-        </h2>
+      {/* Main Content */}
+      <main className="pt-32 pb-16 px-4 container mx-auto">
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Customer <span className="text-purple-600">Features</span>
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            Discover how INNOVAID enhances your shopping experience
+          </p>
+        </motion.section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-20">
-          {/* Feature Boxes */}
-          {[
-            {
-              icon: '📋',
-              title: 'Expiry Alerts',
-              description: 'Receive alerts for products nearing their expiry.'
-            },
-            {
-              icon: '📱',
-              title: 'QR Tracking',
-              description: 'Scan QR codes to track purchase history seamlessly.'
-            },
-            {
-              icon: '📦',
-              title: 'Product Details',
-              description: 'Access detailed information about your purchases.'
-            },
-            {
-              icon: '🛍️',
-              title: 'Supermarket Browsing',
-              description: 'Explore affiliated supermarkets and your bill records.'
-            },
-            {
-              icon: '💡',
-              title: 'User Recommendations',
-              description: 'Get personalized recommendations based on your habits.'
-            },
-            {
-              icon: '🔒',
-              title: 'Secure Accounts',
-              description: 'Enjoy advanced security for all your account activities.'
-            }
-          ].map((feature, index) => (
-            <div 
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, index) => (
+            <motion.div
               key={index}
-              className="feature-box p-6 bg-gray-800 rounded-lg shadow-lg text-center border-2 border-transparent transition-all duration-300 hover:scale-105 hover:border-orange-500 hover:shadow-orange-500/20"
-              data-aos="fade-up"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ y: -5 }}
             >
-              <h3 className="text-xl font-bold text-orange-400">
-                {feature.icon} {feature.title}
-              </h3>
-              <p className="text-gray-400 mt-2">{feature.description}</p>
-            </div>
+              <Card className="h-full bg-white border border-gray-200 hover:border-purple-300 transition-all duration-300 shadow-sm hover:shadow-md">
+                <CardHeader className="items-center">
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    className="p-4 bg-purple-50 rounded-full"
+                  >
+                    {feature.icon}
+                  </motion.div>
+                  <CardTitle className="text-xl text-gray-800 mt-4 flex items-center justify-center gap-2">
+                    {feature.title}
+                    {feature.badge && (
+                      <Badge variant="outline" className="border-purple-300 text-purple-600">
+                        {feature.badge}
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-gray-600">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
 
-        {/* Go Back Button */}
-        <Link 
-          href="/" 
-          className="inline-block mt-8 bg-orange-500 text-black px-6 py-3 rounded-md font-medium transition-all duration-300 hover:bg-orange-400 hover:scale-105"
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="flex justify-center mt-12"
         >
-          Go Back
-        </Link>
-      </section>
+          <Link href="/customersignup">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg">
+                Get Started as Customer
+              </Button>
+            </motion.div>
+          </Link>
+        </motion.div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white py-6 text-center border-t border-gray-200">
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="font-medium text-gray-600"
+        >
+          © 2025 INNOVAID. All Rights Reserved.
+        </motion.p>
+      </footer>
     </div>
   );
 }

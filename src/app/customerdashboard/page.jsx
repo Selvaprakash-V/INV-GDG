@@ -14,15 +14,15 @@ import { motion } from 'framer-motion';
 export default function CustomerDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Sample inventory data (simplified for customers)
+  // Sample inventory data with expiry information
   const inventoryData = [
-    { id: 1, name: 'Organic Apples', category: 'Fruits', stock: 150, price: 2.99 },
-    { id: 2, name: 'Whole Grain Bread', category: 'Bakery', stock: 42, price: 3.49 },
-    { id: 3, name: 'Almond Milk', category: 'Dairy', stock: 0, price: 4.29 },
-    { id: 4, name: 'Free Range Eggs', category: 'Dairy', stock: 89, price: 5.99 },
-    { id: 5, name: 'Greek Yogurt', category: 'Dairy', stock: 23, price: 1.99 },
-    { id: 6, name: 'Organic Spinach', category: 'Vegetables', stock: 56, price: 2.49 },
-    { id: 7, name: 'Quinoa', category: 'Grains', stock: 34, price: 6.99 },
+    { id: 1, name: 'Organic Apples', category: 'Fruits', stock: 150, price: 2.99, expiryStatus: 'fresh', purchases: 45 },
+    { id: 2, name: 'Whole Grain Bread', category: 'Bakery', stock: 42, price: 3.49, expiryStatus: 'expiring', purchases: 28 },
+    { id: 3, name: 'Almond Milk', category: 'Dairy', stock: 0, price: 4.29, expiryStatus: 'normal', purchases: 15 },
+    { id: 4, name: 'Free Range Eggs', category: 'Dairy', stock: 89, price: 5.99, expiryStatus: 'fresh', purchases: 32 },
+    { id: 5, name: 'Greek Yogurt', category: 'Dairy', stock: 23, price: 1.99, expiryStatus: 'expiring', purchases: 18 },
+    { id: 6, name: 'Organic Spinach', category: 'Vegetables', stock: 56, price: 2.49, expiryStatus: 'normal', purchases: 22 },
+    { id: 7, name: 'Quinoa', category: 'Grains', stock: 34, price: 6.99, expiryStatus: 'fresh', purchases: 12 },
   ];
 
   // Filter data based on search
@@ -31,19 +31,20 @@ export default function CustomerDashboard() {
     item.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Chart data calculations
-  const stockStatusData = [
-    { name: 'In Stock', value: inventoryData.filter(item => item.stock > 0).length, color: '#8b5cf6' },
-    { name: 'Out of Stock', value: inventoryData.filter(item => item.stock === 0).length, color: '#ef4444' },
+  // Expiry status data for pie chart
+  const expiryStatusData = [
+    { name: 'Fresh', value: inventoryData.filter(item => item.expiryStatus === 'fresh').length, color: '#10b981' },
+    { name: 'Expiring Soon', value: inventoryData.filter(item => item.expiryStatus === 'expiring').length, color: '#f59e0b' },
+    { name: 'Normal', value: inventoryData.filter(item => item.expiryStatus === 'normal').length, color: '#8b5cf6' },
   ];
 
-  // Calculate average price per category
-  const categoryPriceData = Array.from(new Set(inventoryData.map(item => item.category))).map(category => {
+  // Purchases by category data for bar chart
+  const purchasesByCategory = Array.from(new Set(inventoryData.map(item => item.category))).map(category => {
     const items = inventoryData.filter(item => item.category === category);
-    const avgPrice = items.reduce((sum, item) => sum + item.price, 0) / items.length;
+    const totalPurchases = items.reduce((sum, item) => sum + item.purchases, 0);
     return { 
       category,
-      avgPrice: Number(avgPrice.toFixed(2))
+      purchases: totalPurchases
     };
   });
 
@@ -85,17 +86,17 @@ export default function CustomerDashboard() {
             animate={{ opacity: 1 }}
             className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
           >
-            {/* Stock Status Pie Chart */}
+            {/* Expiry Status Pie Chart */}
             <Card className="p-4 bg-white border border-gray-200 hover:border-purple-300 transition-all">
               <CardHeader>
-                <CardTitle>Stock Availability</CardTitle>
-                <CardDescription>Current product availability status</CardDescription>
+                <CardTitle>Product Expiry Status</CardTitle>
+                <CardDescription>Freshness status of our products</CardDescription>
               </CardHeader>
               <CardContent className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={stockStatusData}
+                      data={expiryStatusData}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -104,7 +105,7 @@ export default function CustomerDashboard() {
                       dataKey="value"
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
-                      {stockStatusData.map((entry, index) => (
+                      {expiryStatusData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -115,15 +116,18 @@ export default function CustomerDashboard() {
               </CardContent>
             </Card>
 
-            {/* Price by Category Bar Chart */}
+            {/* Purchases by Category Bar Chart */}
             <Card className="p-4 bg-white border border-gray-200 hover:border-purple-300 transition-all">
               <CardHeader>
-                <CardTitle>Average Price by Category</CardTitle>
-                <CardDescription>Product pricing across categories</CardDescription>
+                <CardTitle>Your Purchases by Category</CardTitle>
+                <CardDescription>Products you've bought across categories</CardDescription>
               </CardHeader>
               <CardContent className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={categoryPriceData}>
+                  <BarChart 
+                    data={purchasesByCategory}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis 
                       dataKey="category" 
@@ -135,8 +139,8 @@ export default function CustomerDashboard() {
                     <YAxis stroke="#6b7280" />
                     <Tooltip />
                     <Bar 
-                      dataKey="avgPrice" 
-                      name="Average Price ($)"
+                      dataKey="purchases" 
+                      name="Purchases"
                       fill="#8b5cf6" 
                       radius={[4, 4, 0, 0]}
                     />
@@ -159,7 +163,7 @@ export default function CustomerDashboard() {
                   <TableHead className="text-purple-800">Category</TableHead>
                   <TableHead className="text-purple-800">Stock</TableHead>
                   <TableHead className="text-purple-800">Price</TableHead>
-                  <TableHead className="text-purple-800">Status</TableHead>
+                  <TableHead className="text-purple-800">Expiry Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -183,10 +187,14 @@ export default function CustomerDashboard() {
                     <TableCell>${item.price.toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge
-                        variant={item.stock > 0 ? 'default' : 'destructive'}
+                        variant={
+                          item.expiryStatus === 'fresh' ? 'default' :
+                          item.expiryStatus === 'expiring' ? 'warning' : 'secondary'
+                        }
                         className="capitalize"
                       >
-                        {item.stock > 0 ? 'Available' : 'Out of Stock'}
+                        {item.expiryStatus === 'fresh' ? 'Fresh' : 
+                         item.expiryStatus === 'expiring' ? 'Expiring Soon' : 'Normal'}
                       </Badge>
                     </TableCell>
                   </TableRow>

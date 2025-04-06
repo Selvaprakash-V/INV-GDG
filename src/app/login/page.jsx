@@ -1,4 +1,10 @@
 'use client';
+<<<<<<< HEAD
+=======
+
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+>>>>>>> 16b919274f8c5e66c8f362521cea803b4e83ffd5
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -6,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState } from 'react';
-import { Mail, Lock, User, Store, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, Store, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +21,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleRoleSelect = (role) => {
     setSelectedRole(role);
@@ -24,6 +31,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError('');
 
     if (!selectedRole || !email || !password) {
       setError('Please fill all fields correctly!');
@@ -32,6 +40,7 @@ export default function LoginPage() {
     }
 
     try {
+<<<<<<< HEAD
       // Simulate API call (replace with actual authentication logic)
       await new Promise(resolve => setTimeout(resolve, 1500));
       
@@ -45,6 +54,32 @@ export default function LoginPage() {
     } catch (err) {
       setError('Login failed. Please check your credentials.');
       console.error('Login error:', err);
+=======
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Store user data in session
+      const userData = {
+        email,
+        role: selectedRole,
+        name: selectedRole === 'Administrator' ? 'Admin User' : 'Customer User'
+      };
+      sessionStorage.setItem('user', JSON.stringify(userData));
+      
+      // Show success state
+      setIsSuccess(true);
+      
+      // Redirect based on role after delay
+      setTimeout(() => {
+        if (selectedRole === 'Administrator') {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/customer/dashboard');
+        }
+      }, 1500);
+    } catch (err) {
+      setError('Login failed. Please try again.');
+>>>>>>> 16b919274f8c5e66c8f362521cea803b4e83ffd5
     } finally {
       setIsSubmitting(false);
     }
@@ -151,6 +186,17 @@ export default function LoginPage() {
                 </motion.div>
               )}
 
+              {isSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 p-3 bg-green-50 text-green-600 rounded-md"
+                >
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Login successful! Redirecting...</span>
+                </motion.div>
+              )}
+
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -158,9 +204,16 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isSuccess}
                 >
-                  {isSubmitting ? 'Logging in...' : 'Login'}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Logging in...
+                    </>
+                  ) : (
+                    'Login'
+                  )}
                 </Button>
               </motion.div>
             </form>

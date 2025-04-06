@@ -10,6 +10,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -540,7 +541,7 @@ export default function AdminDashboard() {
               transition={{ duration: 0.5 }}
               className="mb-8"
             >
-              <h1 className="text-3xl font-bold text-gray-800">Inventory Dashboard</h1>
+              <h1 className="text-3xl font-bold text-gray-800">Ramalinga Stores</h1>
               <p className="text-gray-600 mt-2">Manage your inventory and track expiry dates</p>
             </motion.div>
 

@@ -98,7 +98,7 @@ export default function CustomerSignupPage() {
               Customer Signup
             </CardTitle>
             <CardDescription className="text-gray-600">
-              Join INNOVAID to track your purchases
+              Join TRACKIT to track your purchases
             </CardDescription>
           </CardHeader>
 

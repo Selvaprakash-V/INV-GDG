@@ -34,8 +34,8 @@ import {
 
 // Sample data
 const userData = {
-  name: "Priya",
-  email: "priya.patel@example.com",
+  name: "Rahul",
+  email: "Rahul.patel@example.com",
   avatar: "/avatars/02.png",
 };
 

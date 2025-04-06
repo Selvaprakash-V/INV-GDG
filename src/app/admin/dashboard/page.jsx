@@ -32,13 +32,23 @@ export default function AdminDashboard() {
 
   // Sample inventory data
   const inventoryData = [
-    { id: 1, name: 'Organic Apples', category: 'Fruits', stock: 150, expiry: '2023-12-15', status: 'fresh' },
-    { id: 2, name: 'Whole Grain Bread', category: 'Bakery', stock: 42, expiry: '2023-11-28', status: 'expiring' },
-    { id: 3, name: 'Almond Milk', category: 'Dairy', stock: 0, expiry: '2023-11-20', status: 'out' },
-    { id: 4, name: 'Free Range Eggs', category: 'Dairy', stock: 89, expiry: '2023-12-05', status: 'fresh' },
-    { id: 5, name: 'Greek Yogurt', category: 'Dairy', stock: 23, expiry: '2023-11-25', status: 'expiring' },
-    { id: 6, name: 'Organic Spinach', category: 'Vegetables', stock: 56, expiry: '2023-11-22', status: 'expired' },
-    { id: 7, name: 'Quinoa', category: 'Grains', stock: 34, expiry: '2024-01-15', status: 'fresh' },
+
+      { id: 1, name: 'Coca-Cola Can', category: 'Beverages', stock: 150, expiry: '2026-01-15', status: 'fresh' },
+      { id: 2, name: 'Whole Grain Bread', category: 'Bakery', stock: 42, expiry: '2025-06-30', status: 'expiring' },
+      { id: 3, name: 'Almond Milk', category: 'Dairy', stock: 0, expiry: '2025-07-20', status: 'out' },
+      { id: 4, name: 'Free Range Eggs', category: 'Dairy', stock: 89, expiry: '2025-06-05', status: 'fresh' },
+      { id: 5, name: 'Greek Yogurt', category: 'Dairy', stock: 23, expiry: '2025-06-25', status: 'expiring' },
+      { id: 6, name: 'Lays Classic Chips', category: 'Snacks', stock: 56, expiry: '2025-10-22', status: 'fresh' },
+      { id: 7, name: 'Dettol Hand Wash', category: 'Personal Care', stock: 34, expiry: '2026-03-15', status: 'fresh' },
+      { id: 8, name: 'Pepsi Bottle', category: 'Beverages', stock: 150, expiry: '2026-01-30', status: 'fresh' },
+      { id: 9, name: 'Whole Grain Bread', category: 'Bakery', stock: 42, expiry: '2025-06-28', status: 'expiring' },
+      { id: 10, name: 'Almond Milk', category: 'Dairy', stock: 0, expiry: '2025-07-20', status: 'out' },
+      { id: 11, name: 'Free Range Eggs', category: 'Dairy', stock: 89, expiry: '2025-06-05', status: 'fresh' },
+      { id: 12, name: 'Greek Yogurt', category: 'Dairy', stock: 23, expiry: '2025-06-25', status: 'expiring' },
+      { id: 13, name: 'Lays Classic Chips', category: 'Snacks', stock: 56, expiry: '2025-10-22', status: 'fresh' },
+      { id: 14, name: 'Dettol Hand Wash', category: 'Personal Care', stock: 34, expiry: '2026-03-15', status: 'fresh' }
+      
+    
   ];
 
   // Expiring soon items (within 7 days)
@@ -118,26 +128,26 @@ export default function AdminDashboard() {
 
   // Calculate stats
   const stats = {
-    totalItems: inventoryData.length,
-    availableItems: inventoryData.filter(item => item.stock > 0).length,
-    outOfStock: inventoryData.filter(item => item.stock === 0).length,
-    expiringSoon: expiringSoonItems.length,
-    expired: expiredItems.length,
+    totalItems: 227,  // Changed from inventoryData.length to 227
+    availableItems: 197,
+    outOfStock: 12,
+    expiringSoon: 11,
+    expired: 19,
   };
 
   // Data for charts
-  const expiryData = [
-    { name: 'Fresh', value: inventoryData.filter(item => item.status === 'fresh').length, color: '#8b5cf6' },
-    { name: 'Expiring', value: inventoryData.filter(item => item.status === 'expiring').length, color: '#f59e0b' },
-    { name: 'Expired', value: inventoryData.filter(item => item.status === 'expired').length, color: '#ef4444' },
-  ];
-
+ // Replace the expiryData array with these new values:
+const expiryData = [
+  { name: 'Fresh', value: 86.78, color: '#8b5cf6' },
+  { name: 'Expiring', value: 4.84, color: '#f59e0b' },
+  { name: 'Expired', value: 8.37, color: '#ef4444' },
+];
   const categoryData = [
-    { name: 'Fruits', value: inventoryData.filter(item => item.category === 'Fruits').length },
+    { name: 'Beverages', value: inventoryData.filter(item => item.category === 'Beverages').length },
     { name: 'Bakery', value: inventoryData.filter(item => item.category === 'Bakery').length },
     { name: 'Dairy', value: inventoryData.filter(item => item.category === 'Dairy').length },
-    { name: 'Vegetables', value: inventoryData.filter(item => item.category === 'Vegetables').length },
-    { name: 'Grains', value: inventoryData.filter(item => item.category === 'Grains').length },
+    { name: 'Snacks', value: inventoryData.filter(item => item.category === 'Snacks').length },
+    { name: 'Personal Care', value: inventoryData.filter(item => item.category === 'Personal Care').length },
   ];
 
   // Scroll effect for header
@@ -197,7 +207,7 @@ export default function AdminDashboard() {
                           <Progress
                             value={(item.stock / 200) * 100}
                             className="h-2 w-24"
-                            indicatorColor={
+                            indicatorcolor={
                               item.stock > 50 ? 'bg-green-500' : 
                               item.stock > 20 ? 'bg-yellow-500' : 'bg-red-500'
                             }
@@ -540,7 +550,7 @@ export default function AdminDashboard() {
               transition={{ duration: 0.5 }}
               className="mb-8"
             >
-              <h1 className="text-3xl font-bold text-gray-800">Inventory Dashboard</h1>
+              <h1 className="text-3xl font-bold text-gray-800">Ramalinga Stores</h1>
               <p className="text-gray-600 mt-2">Manage your inventory and track expiry dates</p>
             </motion.div>
 
@@ -710,7 +720,7 @@ export default function AdminDashboard() {
                           <Progress
                             value={(item.stock / 200) * 100}
                             className="h-2 w-24"
-                            indicatorColor={
+                            indicatorcolor={
                               item.stock > 50 ? 'bg-green-500' : 
                               item.stock > 20 ? 'bg-yellow-500' : 'bg-red-500'
                             }
@@ -756,10 +766,11 @@ export default function AdminDashboard() {
             transition={{ duration: 0.5 }}
           >
             <Link href="/">
-              <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300 text-purple-600">
-                INNOVAID
-              </h1>
-            </Link>
+  <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300">
+    <span className="text-purple-600">TRAC</span><span className="text-pink-600">KIT</span>
+  </h1>
+</Link>
+
           </motion.div>
 
           <div className="flex items-center space-x-4">

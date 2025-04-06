@@ -198,7 +198,7 @@ export default function AdminDashboard() {
                           <Progress
                             value={(item.stock / 200) * 100}
                             className="h-2 w-24"
-                            indicatorColor={
+                            indicatorcolor={
                               item.stock > 50 ? 'bg-green-500' : 
                               item.stock > 20 ? 'bg-yellow-500' : 'bg-red-500'
                             }
@@ -541,7 +541,7 @@ export default function AdminDashboard() {
               transition={{ duration: 0.5 }}
               className="mb-8"
             >
-              <h1 className="text-3xl font-bold text-gray-800">Inventory Dashboard</h1>
+              <h1 className="text-3xl font-bold text-gray-800">Ramalinga Stores</h1>
               <p className="text-gray-600 mt-2">Manage your inventory and track expiry dates</p>
             </motion.div>
 
@@ -758,7 +758,7 @@ export default function AdminDashboard() {
           >
             <Link href="/">
               <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300 text-purple-600">
-                INNOVAID
+                TRACKIT
               </h1>
             </Link>
           </motion.div>

@@ -32,13 +32,20 @@ export default function AdminDashboard() {
 
   // Sample inventory data
   const inventoryData = [
-    { id: 1, name: 'Organic Apples', category: 'Fruits', stock: 150, expiry: '2023-12-15', status: 'fresh' },
-    { id: 2, name: 'Whole Grain Bread', category: 'Bakery', stock: 42, expiry: '2023-11-28', status: 'expiring' },
-    { id: 3, name: 'Almond Milk', category: 'Dairy', stock: 0, expiry: '2023-11-20', status: 'out' },
-    { id: 4, name: 'Free Range Eggs', category: 'Dairy', stock: 89, expiry: '2023-12-05', status: 'fresh' },
-    { id: 5, name: 'Greek Yogurt', category: 'Dairy', stock: 23, expiry: '2023-11-25', status: 'expiring' },
+    { id: 1, name: 'Maggi Instant Noodles', category: 'Food', stock: 150, expiry: '2025-12-15', status: 'fresh' },
+    { id: 2, name: 'Whole Grain Bread', category: 'Bakery', stock: 42, expiry: '2025-06-10', status: 'expiring' },
+    { id: 3, name: 'Almond Milk', category: 'Dairy', stock: 0, expiry: '2025-07-20', status: 'out' },
+    { id: 4, name: 'Free Range Eggs', category: 'Dairy', stock: 89, expiry: '2025-06-05', status: 'fresh' },
+    { id: 5, name: 'Greek Yogurt', category: 'Dairy', stock: 23, expiry: '2025-11-25', status: 'expiring' },
     { id: 6, name: 'Organic Spinach', category: 'Vegetables', stock: 56, expiry: '2023-11-22', status: 'expired' },
     { id: 7, name: 'Quinoa', category: 'Grains', stock: 34, expiry: '2024-01-15', status: 'fresh' },
+    { id: 8, name: 'britannia ', category: 'Fruits', stock: 150, expiry: '2023-12-15', status: 'fresh' },
+    { id: 9, name: 'Whole Grain Bread', category: 'Bakery', stock: 42, expiry: '2023-11-28', status: 'expiring' },
+    { id: 10, name: 'Almond Milk', category: 'Dairy', stock: 0, expiry: '2023-11-20', status: 'out' },
+    { id: 11, name: 'Free Range Eggs', category: 'Dairy', stock: 89, expiry: '2023-12-05', status: 'fresh' },
+    { id: 12, name: 'Greek Yogurt', category: 'Dairy', stock: 23, expiry: '2023-11-25', status: 'expiring' },
+    { id: 13, name: 'Organic Spinach', category: 'Vegetables', stock: 56, expiry: '2023-11-22', status: 'expired' },
+    { id: 14, name: 'Quinoa', category: 'Grains', stock: 34, expiry: '2024-01-15', status: 'fresh' },
   ];
 
   // Expiring soon items (within 7 days)

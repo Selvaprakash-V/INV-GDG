@@ -1,7 +1,7 @@
 'use client';
-
-import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Mail, Lock, User, Store, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [selectedRole, setSelectedRole] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,12 +31,23 @@ export default function LoginPage() {
       return;
     }
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // On successful login
-    console.log(`Logged in as ${selectedRole}`);
-    setIsSubmitting(false);
+    try {
+      // Simulate API call (replace with actual authentication logic)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // On successful login, redirect based on role
+      if (selectedRole === 'Administrator') {
+        router.push('/admin/dashboard');
+      } else if (selectedRole === 'Customer') {
+        router.push('/customer/dashboard');
+      }
+      
+    } catch (err) {
+      setError('Login failed. Please check your credentials.');
+      console.error('Login error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -77,7 +89,7 @@ export default function LoginPage() {
                   <Button
                     type="button"
                     variant={selectedRole === 'Administrator' ? 'default' : 'outline'}
-                    className={`w-full ${selectedRole === 'Administrator' ? 'bg-purple-600 text-white' : ''}`}
+                    className={`w-full transition-colors ${selectedRole === 'Administrator' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
                     onClick={() => handleRoleSelect('Administrator')}
                   >
                     <Store className="w-4 h-4 mr-2" />
@@ -88,7 +100,7 @@ export default function LoginPage() {
                   <Button
                     type="button"
                     variant={selectedRole === 'Customer' ? 'default' : 'outline'}
-                    className={`w-full ${selectedRole === 'Customer' ? 'bg-purple-600 text-white' : ''}`}
+                    className={`w-full transition-colors ${selectedRole === 'Customer' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
                     onClick={() => handleRoleSelect('Customer')}
                   >
                     <User className="w-4 h-4 mr-2" />
@@ -157,7 +169,7 @@ export default function LoginPage() {
           <CardFooter className="flex flex-col items-center gap-2">
             <Link
               href="/forgot-password"
-              className="text-sm text-purple-600 hover:text-purple-700"
+              className="text-sm text-purple-600 hover:text-purple-700 hover:underline"
             >
               Forgot password?
             </Link>
@@ -165,7 +177,7 @@ export default function LoginPage() {
               Don't have an account?{' '}
               <Link
                 href="/role"
-                className="text-purple-600 font-medium hover:text-purple-700"
+                className="text-purple-600 font-medium hover:text-purple-700 hover:underline"
               >
                 Sign up
               </Link>

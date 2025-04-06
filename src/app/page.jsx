@@ -21,7 +21,7 @@ export default function Home() {
       <Link href="/contact">Contact</Link>
       <Link href="admmindashboard">Admin Dashboard</Link>
       <Link href="customerdashboard">Customer Dashboard</Link>
-      <link href="customer/dashboard">Customer Dashboard</link> 
+      <link href="customer/dashboard">Customer Dashboard</link>
 
     </div>
   );

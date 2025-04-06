@@ -118,20 +118,20 @@ export default function AdminDashboard() {
 
   // Calculate stats
   const stats = {
-    totalItems: inventoryData.length,
-    availableItems: inventoryData.filter(item => item.stock > 0).length,
-    outOfStock: inventoryData.filter(item => item.stock === 0).length,
-    expiringSoon: expiringSoonItems.length,
-    expired: expiredItems.length,
+    totalItems: 227,  // Changed from inventoryData.length to 227
+    availableItems: 197,
+    outOfStock: 12,
+    expiringSoon: 11,
+    expired: 19,
   };
 
   // Data for charts
-  const expiryData = [
-    { name: 'Fresh', value: inventoryData.filter(item => item.status === 'fresh').length, color: '#8b5cf6' },
-    { name: 'Expiring', value: inventoryData.filter(item => item.status === 'expiring').length, color: '#f59e0b' },
-    { name: 'Expired', value: inventoryData.filter(item => item.status === 'expired').length, color: '#ef4444' },
-  ];
-
+ // Replace the expiryData array with these new values:
+const expiryData = [
+  { name: 'Fresh', value: 86.78, color: '#8b5cf6' },
+  { name: 'Expiring', value: 4.84, color: '#f59e0b' },
+  { name: 'Expired', value: 8.37, color: '#ef4444' },
+];
   const categoryData = [
     { name: 'Fruits', value: inventoryData.filter(item => item.category === 'Fruits').length },
     { name: 'Bakery', value: inventoryData.filter(item => item.category === 'Bakery').length },
@@ -756,10 +756,11 @@ export default function AdminDashboard() {
             transition={{ duration: 0.5 }}
           >
             <Link href="/">
-              <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300 text-purple-600">
-                INNOVAID
-              </h1>
-            </Link>
+  <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300">
+    <span className="text-purple-600">TRAC</span><span className="text-pink-600">KIT</span>
+  </h1>
+</Link>
+
           </motion.div>
 
           <div className="flex items-center space-x-4">

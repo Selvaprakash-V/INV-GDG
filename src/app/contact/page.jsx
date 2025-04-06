@@ -46,7 +46,7 @@ export default function ContactPage() {
     {
       icon: '📧',
       title: 'Email',
-      description: 'info@innovaid.com'
+      description: 'info@TRACKIT.com'
     },
     {
       icon: '📞',
@@ -67,7 +67,7 @@ export default function ContactPage() {
           >
             <Link href="/">
               <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300 text-purple-600">
-                INNOVAID
+                TRACKIT
               </h1>
             </Link>
           </motion.div>
@@ -233,7 +233,7 @@ export default function ContactPage() {
           viewport={{ once: true }}
           className="font-medium text-gray-600"
         >
-          © 2025 INNOVAID. All Rights Reserved.
+          © 2025 TRACKIT. All Rights Reserved.
         </motion.p>
       </footer>
     </div>

@@ -57,11 +57,12 @@ export default function ExploreCustomer() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Link href="/">
-              <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300 text-purple-600">
-                INNOVAID
-              </h1>
-            </Link>
+           <Link href="/">
+  <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300">
+    <span className="text-purple-600">TRAC</span><span className="text-pink-600">KIT</span>
+  </h1>
+</Link>
+
           </motion.div>
 
           <nav className="hidden md:flex items-center space-x-6">

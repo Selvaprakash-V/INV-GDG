@@ -342,7 +342,7 @@ export default function AdminDashboard() {
                         <Progress
                           value={(item.stock / 200) * 100}
                           className="h-2 w-24"
-                          indicatorColor={
+                          indicatorcolor={
                             item.stock > 50 ? 'bg-green-500' : 
                             item.stock > 20 ? 'bg-yellow-500' : 'bg-red-500'
                           }

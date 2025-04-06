@@ -757,7 +757,7 @@ export default function AdminDashboard() {
           >
             <Link href="/">
               <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300 text-purple-600">
-                INNOVAID
+                TRACKIT
               </h1>
             </Link>
           </motion.div>

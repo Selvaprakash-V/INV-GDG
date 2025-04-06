@@ -36,11 +36,12 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Link href="/">
-              <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300 text-purple-600">
-                INNOVAID
-              </h1>
-            </Link>
+          <Link href="/">
+  <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300">
+    <span className="text-purple-600">TRAC</span><span className="text-pink-600">KIT</span>
+  </h1>
+</Link>
+
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -129,7 +130,7 @@ export default function Home() {
             Track Expiry, Minimize Waste, Maximize Awareness
           </h1>
           <p className="text-lg md:text-xl text-gray-600 mb-8">
-            INNOVAID helps you track expiry dates smartly, reducing waste and increasing awareness.
+            TRACKIT helps you track expiry dates smartly, reducing waste and increasing awareness.
           </p>
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -158,7 +159,7 @@ export default function Home() {
             <br></br>
             <h2 className="text-3xl font-bold text-gray-800">Smart Expiry Solutions</h2>
             <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
-              INNOVAID offers smart expiry tracking, inventory alerts, and QR-based tracking.
+              TRACKIT offers smart expiry tracking, inventory alerts, and QR-based tracking.
             </p>
           </motion.div>
 
@@ -267,11 +268,11 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-gray-800 mb-4">Get In Touch</h2>
             <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-8 text-lg text-gray-600">
               <motion.a
-                href="mailto:info@innovaid.com"
+                href="mailto:info@TRACKIT.com"
                 whileHover={{ scale: 1.05 }}
                 className="flex items-center justify-center gap-2 hover:text-purple-600 transition-colors"
               >
-                <span>📧</span> info@innovaid.com
+                <span>📧</span> info@TRACKIT.com
               </motion.a>
               <motion.a
                 href="tel:+15551234567"
@@ -300,7 +301,7 @@ export default function Home() {
           viewport={{ once: true }}
           className="font-medium text-gray-600"
         >
-          © 2025 INNOVAID. All Rights Reserved.
+          © 2025 TRACKIT. All Rights Reserved.
         </motion.p>
       </footer>
     </div>

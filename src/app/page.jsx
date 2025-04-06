@@ -2,6 +2,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link';
 
+
 export default function Home() {
   redirect('/home');
   
@@ -13,15 +14,14 @@ export default function Home() {
       <Link href="/role">Role</Link>
       <Link href="/home">Home</Link>
       <Link href="/dashboard">Dashboard</Link>
-      <Link href="/exploreseller">Explore Seller</Link>
-      <Link href="/explorecustomer">Explore Customer</Link>
-      <Link href="/administratorsignup">Admin Sign Up</Link>
-      <Link href="/customersignup">Customer Sign Up</Link>
+      <Link href="/explore/seller">Explore Seller</Link>
+      <Link href="/explore/customer">Explore Customer</Link>
       <Link href="/login">Login</Link>
       <Link href="/contact">Contact</Link>
-      <Link href="admmindashboard">Admin Dashboard</Link>
-      <Link href="customerdashboard">Customer Dashboard</Link>
+      <link href="administrator/dashboard">Admin Dashboard</link>
       <link href="customer/dashboard">Customer Dashboard</link> 
+      <Link href="/administrator/signup">Admin Sign Up</Link>
+      <Link href="/customer/signup">Customer Sign Up</Link>
 
     </div>
   );

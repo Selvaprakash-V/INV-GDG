@@ -1,255 +1,190 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState } from 'react';
-import { Lock, Mail, Store, CheckCircle2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import styles from './page.module.css';
 
-export default function AdminSignupPage() {
+export default function AdminSignup() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    shopName: '',
+    name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    supermarketName: '',
+    supermarketAddress: '',
   });
-  const [errors, setErrors] = useState({
-    shopName: false,
-    email: false,
-    password: false,
-    confirmPassword: false
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [id]: value
+      [name]: value
     }));
-    // Clear error when user types
-    if (errors[id]) {
-      setErrors(prev => ({
-        ...prev,
-        [id]: false
-      }));
-    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setError('');
+    setLoading(true);
 
-    // Regex for validation
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // Validate inputs
-    const newErrors = {
-      shopName: formData.shopName.trim() === '',
-      email: !emailRegex.test(formData.email),
-      password: !passwordRegex.test(formData.password),
-      confirmPassword: formData.password !== formData.confirmPassword
-    };
-
-    setErrors(newErrors);
-
-    // Check if any errors exist
-    const hasErrors = Object.values(newErrors).some(error => error);
-    
-    if (!hasErrors) {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setIsSuccess(true);
-      
-      // Redirect after showing success
-      setTimeout(() => {
-        router.push('/admin/dashboard');
-      }, 2000);
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
     }
-    setIsSubmitting(false);
+
+    // Validate supermarket details
+    if (!formData.supermarketName || !formData.supermarketAddress) {
+      setError('Please provide supermarket name and address');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: 'SUPERMARKET_ADMIN',
+          supermarketName: formData.supermarketName,
+          supermarketAddress: formData.supermarketAddress,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      // Registration successful
+      router.push('/login?registered=true');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
-        <Card className="bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="text-center">
-            <motion.div
-              initial={{ y: -20 }}
-              animate={{ y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Store className="w-12 h-12 mx-auto text-purple-600 mb-4" />
-            </motion.div>
-            <CardTitle className="text-2xl font-bold text-gray-800">
-              Administrator Signup
-            </CardTitle>
-            <CardDescription className="text-gray-600">
-              Register your supermarket account
-            </CardDescription>
-          </CardHeader>
+    <div className={styles.container}>
+      <div className={styles.formContainer}>
+        <h1 className={styles.title}>Supermarket Admin Sign Up</h1>
+        {error && <div className={styles.error}>{error}</div>}
+        
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className={styles.input}
+              placeholder="Enter your full name"
+            />
+          </div>
 
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Shop Name */}
-              <div className="space-y-2">
-                <Label htmlFor="shopName" className="text-gray-800">
-                  Shop Name
-                </Label>
-                <div className="relative">
-                  <Store className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="shopName"
-                    type="text"
-                    placeholder="Enter your shop name"
-                    value={formData.shopName}
-                    onChange={handleChange}
-                    className={`pl-10 ${errors.shopName ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.shopName && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-sm text-red-500"
-                  >
-                    Shop name is required
-                  </motion.p>
-                )}
-              </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className={styles.input}
+              placeholder="Enter your email"
+            />
+          </div>
 
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-800">
-                  Email
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.email && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-sm text-red-500"
-                  >
-                    Please enter a valid email
-                  </motion.p>
-                )}
-              </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className={styles.input}
+              placeholder="Enter your password"
+              minLength="6"
+            />
+          </div>
 
-              {/* Password */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-800">
-                  Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Create a password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className={`pl-10 ${errors.password ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.password && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-sm text-red-500"
-                  >
-                    Must be 8+ chars with uppercase, lowercase, and number
-                  </motion.p>
-                )}
-              </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              className={styles.input}
+              placeholder="Confirm your password"
+              minLength="6"
+            />
+          </div>
 
-              {/* Confirm Password */}
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-gray-800">
-                  Confirm Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className={`pl-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.confirmPassword && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-sm text-red-500"
-                  >
-                    Passwords don't match
-                  </motion.p>
-                )}
-              </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="supermarketName">Supermarket Name</label>
+            <input
+              type="text"
+              id="supermarketName"
+              name="supermarketName"
+              value={formData.supermarketName}
+              onChange={handleChange}
+              required
+              className={styles.input}
+              placeholder="Enter supermarket name"
+            />
+          </div>
 
-              {isSuccess && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-2 p-3 bg-green-50 text-green-600 rounded-md"
-                >
-                  <CheckCircle2 className="h-5 w-5" />
-                  <span>Registration successful! Redirecting...</span>
-                </motion.div>
-              )}
+          <div className={styles.inputGroup}>
+            <label htmlFor="supermarketAddress">Supermarket Address</label>
+            <textarea
+              id="supermarketAddress"
+              name="supermarketAddress"
+              value={formData.supermarketAddress}
+              onChange={handleChange}
+              required
+              className={styles.textarea}
+              placeholder="Enter supermarket address"
+              rows={3}
+            />
+          </div>
 
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  type="submit"
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Creating account...' : 'Sign Up'}
-                </Button>
-              </motion.div>
-            </form>
-          </CardContent>
+          <button 
+            type="submit" 
+            className={styles.submitButton}
+            disabled={loading}
+          >
+            {loading ? 'Signing up...' : 'Sign Up'}
+          </button>
+        </form>
 
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-gray-600">
-              Already registered?{' '}
-              <Link
-                href="/login"
-                className="text-purple-600 font-medium hover:text-purple-700"
-              >
-                Login here
-              </Link>
-            </p>
-          </CardFooter>
-        </Card>
-      </motion.div>
+        <p className={styles.loginLink}>
+          Already have an account?{' '}
+          <Link href="/login" className={styles.link}>
+            Login here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

@@ -34,14 +34,14 @@ export default function LoginPage() {
     try {
       // Simulate API call (replace with actual authentication logic)
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // On successful login, redirect based on role
       if (selectedRole === 'Administrator') {
         router.push('/admin/dashboard');
       } else if (selectedRole === 'Customer') {
         router.push('/customer/dashboard');
       }
-      
+
     } catch (err) {
       setError('Login failed. Please check your credentials.');
       console.error('Login error:', err);

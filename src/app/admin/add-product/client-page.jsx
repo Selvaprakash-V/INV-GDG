@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import AuthenticatedLayout from '@/app/AuthenticatedLayout';
+import SessionWrapper from '@/components/SessionWrapper';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,21 +49,7 @@ export default function ClientAddProductPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
 
-  // Check authentication using useEffect
-  useEffect(() => {
-    if (status === 'unauthenticated' || (status === 'authenticated' && session?.user?.role !== 'Administrator')) {
-      router.push('/login');
-    }
-  }, [status, session, router]);
-
-  // Show loading state
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
-      </div>
-    );
-  }
+  // Authentication is handled by AuthenticatedLayout
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -69,7 +57,7 @@ export default function ClientAddProductPage() {
       ...prev,
       [id]: value
     }));
-    
+
     // Clear error when user types
     if (errors[id]) {
       setErrors(prev => ({
@@ -84,7 +72,7 @@ export default function ClientAddProductPage() {
       ...prev,
       [field]: value
     }));
-    
+
     // Clear error when user selects
     if (errors[field]) {
       setErrors(prev => ({
@@ -99,7 +87,7 @@ export default function ClientAddProductPage() {
       ...prev,
       expiryDate: date
     }));
-    
+
     // Clear error when user selects a date
     if (errors.expiryDate) {
       setErrors(prev => ({
@@ -111,47 +99,47 @@ export default function ClientAddProductPage() {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Product name is required';
     }
-    
+
     if (!formData.category) {
       newErrors.category = 'Category is required';
     }
-    
+
     if (!formData.price || isNaN(formData.price) || Number(formData.price) <= 0) {
       newErrors.price = 'Valid price is required';
     }
-    
+
     if (!formData.stock || isNaN(formData.stock) || Number(formData.stock) < 0) {
       newErrors.stock = 'Valid stock quantity is required';
     }
-    
+
     if (!formData.expiryDate) {
       newErrors.expiryDate = 'Expiry date is required';
     } else if (new Date(formData.expiryDate) <= new Date()) {
       newErrors.expiryDate = 'Expiry date must be in the future';
     }
-    
+
     if (!formData.barcode.trim()) {
       newErrors.barcode = 'Barcode is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsSubmitting(true);
     setSubmitStatus(null);
-    
+
     try {
       // In a real app, this would be an API call
       const response = await fetch('/api/products', {
@@ -166,15 +154,15 @@ export default function ClientAddProductPage() {
           expiryDate: formData.expiryDate.toISOString(),
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to add product');
       }
-      
+
       setSubmitStatus('success');
-      
+
       // Reset form after successful submission
       setFormData({
         name: '',
@@ -186,12 +174,12 @@ export default function ClientAddProductPage() {
         barcode: '',
         image: '/images/default-product.png'
       });
-      
+
       // Redirect after a short delay
       setTimeout(() => {
         router.push('/admin/dashboard?tab=inventory');
       }, 2000);
-      
+
     } catch (error) {
       console.error('Error adding product:', error);
       setSubmitStatus('error');
@@ -205,8 +193,10 @@ export default function ClientAddProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+    <SessionWrapper>
+      <AuthenticatedLayout>
+        <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100 py-12 px-4">
+        <div className="max-w-4xl mx-auto">
         <Button
           variant="ghost"
           className="mb-6"
@@ -215,7 +205,7 @@ export default function ClientAddProductPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        
+
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -231,7 +221,7 @@ export default function ClientAddProductPage() {
                 </div>
               </div>
             </CardHeader>
-            
+
             <CardContent>
               {submitStatus === 'success' && (
                 <Alert className="mb-6 bg-green-50 border-green-200">
@@ -242,7 +232,7 @@ export default function ClientAddProductPage() {
                   </AlertDescription>
                 </Alert>
               )}
-              
+
               {submitStatus === 'error' && (
                 <Alert className="mb-6 bg-red-50 border-red-200">
                   <AlertCircle className="h-4 w-4 text-red-600" />
@@ -252,7 +242,7 @@ export default function ClientAddProductPage() {
                   </AlertDescription>
                 </Alert>
               )}
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Product Name */}
@@ -268,7 +258,7 @@ export default function ClientAddProductPage() {
                     />
                     {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
                   </div>
-                  
+
                   {/* Category */}
                   <div className="space-y-2">
                     <Label className={cn(errors.category && 'text-red-500')}>
@@ -291,7 +281,7 @@ export default function ClientAddProductPage() {
                     </Select>
                     {errors.category && <p className="text-sm text-red-500">{errors.category}</p>}
                   </div>
-                  
+
                   {/* Price */}
                   <div className="space-y-2">
                     <Label htmlFor="price" className={cn(errors.price && 'text-red-500')}>
@@ -311,7 +301,7 @@ export default function ClientAddProductPage() {
                     </div>
                     {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
                   </div>
-                  
+
                   {/* Stock */}
                   <div className="space-y-2">
                     <Label htmlFor="stock" className={cn(errors.stock && 'text-red-500')}>
@@ -327,7 +317,7 @@ export default function ClientAddProductPage() {
                     />
                     {errors.stock && <p className="text-sm text-red-500">{errors.stock}</p>}
                   </div>
-                  
+
                   {/* Expiry Date */}
                   <div className="space-y-2">
                     <Label className={cn(errors.expiryDate && 'text-red-500')}>
@@ -359,7 +349,7 @@ export default function ClientAddProductPage() {
                     </Popover>
                     {errors.expiryDate && <p className="text-sm text-red-500">{errors.expiryDate}</p>}
                   </div>
-                  
+
                   {/* Barcode */}
                   <div className="space-y-2">
                     <Label htmlFor="barcode" className={cn(errors.barcode && 'text-red-500')}>
@@ -374,7 +364,7 @@ export default function ClientAddProductPage() {
                     {errors.barcode && <p className="text-sm text-red-500">{errors.barcode}</p>}
                   </div>
                 </div>
-                
+
                 {/* Description */}
                 <div className="space-y-2">
                   <Label htmlFor="description">
@@ -387,7 +377,7 @@ export default function ClientAddProductPage() {
                     rows={4}
                   />
                 </div>
-                
+
                 <div className="pt-4">
                   <Button
                     type="submit"
@@ -401,7 +391,9 @@ export default function ClientAddProductPage() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
-    </div>
+        </div>
+        </div>
+      </AuthenticatedLayout>
+    </SessionWrapper>
   );
 }

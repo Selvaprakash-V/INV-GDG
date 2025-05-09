@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import AuthenticatedLayout from '@/app/AuthenticatedLayout';
+import SessionWrapper from '@/components/SessionWrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -774,8 +776,10 @@ const expiryData = [
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100 text-gray-800 font-sans">
-      {/* Header */}
+    <SessionWrapper>
+      <AuthenticatedLayout>
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100 text-gray-800 font-sans">
+        {/* Header */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 shadow-md backdrop-blur-sm' : 'bg-transparent'}`}>
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <motion.div
@@ -866,8 +870,10 @@ const expiryData = [
         <main className="flex-1 p-6">
           {renderTabContent()}
         </main>
-      </div>
-    </div>
+        </div>
+        </div>
+      </AuthenticatedLayout>
+    </SessionWrapper>
   );
 }
 

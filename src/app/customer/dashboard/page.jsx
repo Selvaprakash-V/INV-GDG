@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardContent, 
+import AuthenticatedLayout from '@/app/AuthenticatedLayout';
+import SessionWrapper from '@/components/SessionWrapper';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
   CardDescription,
   CardFooter
 } from "@/components/ui/card";
@@ -17,10 +19,10 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { 
-  Home, 
-  ShoppingBag, 
-  AlertTriangle, 
+import {
+  Home,
+  ShoppingBag,
+  AlertTriangle,
   History,
   Store,
   IndianRupee,
@@ -69,7 +71,7 @@ const recentPurchases = [
   },
   {
     id: "INV-2025-0077",
-    date: "2025-03-02", 
+    date: "2025-03-02",
     store: "Nature's Basket Bandra",
     total: 2250,
     items: [
@@ -129,17 +131,17 @@ export default function CustomerDashboard() {
 
   // Calculate spending data
   const currentMonthSpending = monthlySpending[monthlySpending.length - 1].amount;
-  const monthlyChange = ((currentMonthSpending - monthlySpending[monthlySpending.length - 2].amount) / 
+  const monthlyChange = ((currentMonthSpending - monthlySpending[monthlySpending.length - 2].amount) /
                        monthlySpending[monthlySpending.length - 2].amount * 100);
 
   const currentWeekSpending = weeklySpending[weeklySpending.length - 1].amount;
-  const weeklyChange = ((currentWeekSpending - weeklySpending[weeklySpending.length - 2].amount) / 
+  const weeklyChange = ((currentWeekSpending - weeklySpending[weeklySpending.length - 2].amount) /
                        weeklySpending[weeklySpending.length - 2].amount * 100);
 
   // Process data on component mount
   useEffect(() => {
     // Find expiring products (within 7 days)
-    const expiring = recentPurchases.flatMap(purchase => 
+    const expiring = recentPurchases.flatMap(purchase =>
       purchase.items.filter(item => {
         const expiryDate = new Date(item.expiryDate);
         const today = new Date();
@@ -186,9 +188,11 @@ export default function CustomerDashboard() {
   ];
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-purple-50 to-indigo-50">
-      {/* Sidebar Navigation */}
-      <motion.div 
+    <SessionWrapper>
+      <AuthenticatedLayout>
+        <div className="flex h-screen bg-gradient-to-br from-purple-50 to-indigo-50">
+        {/* Sidebar Navigation */}
+      <motion.div
         initial={{ x: -100 }}
         animate={{ x: 0 }}
         transition={{ type: "spring", stiffness: 300 }}
@@ -234,7 +238,7 @@ export default function CustomerDashboard() {
       <div className="flex-1 overflow-y-auto p-8">
         <AnimatePresence mode="wait">
           {activeTab === "dashboard" && (
-            <DashboardTab 
+            <DashboardTab
               userData={userData}
               currentMonthSpending={currentMonthSpending}
               monthlyChange={monthlyChange}
@@ -261,7 +265,7 @@ export default function CustomerDashboard() {
           )}
 
           {activeTab === "budget" && (
-            <BudgetTab 
+            <BudgetTab
               monthlyBudget={monthlyBudget}
               weeklyBudget={weeklyBudget}
               currentMonthSpending={currentMonthSpending}
@@ -274,8 +278,10 @@ export default function CustomerDashboard() {
             />
           )}
         </AnimatePresence>
-      </div>
-    </div>
+        </div>
+        </div>
+      </AuthenticatedLayout>
+    </SessionWrapper>
   );
 }
 
@@ -448,8 +454,8 @@ function DashboardTab({
             </div>
           </CardContent>
           <CardFooter className="justify-center border-t pt-6">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="text-purple-600 text-lg"
               onClick={() => setActiveTab("history")}
             >
@@ -479,7 +485,7 @@ function DashboardTab({
                 const expiryDate = new Date(item.expiryDate);
                 const today = new Date();
                 const diffDays = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                const purchase = recentPurchases.find(p => 
+                const purchase = recentPurchases.find(p =>
                   p.items.some(i => i.name === item.name));
 
                 return (
@@ -504,8 +510,8 @@ function DashboardTab({
             </div>
           </CardContent>
           <CardFooter className="justify-center border-t border-orange-100 pt-6">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="text-orange-600 text-lg"
               onClick={() => setActiveTab("alerts")}
             >
@@ -616,7 +622,7 @@ function AlertsTab({ expiringSoon, recentPurchases }) {
                 const expiryDate = new Date(item.expiryDate);
                 const today = new Date();
                 const diffDays = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                const purchase = recentPurchases.find(p => 
+                const purchase = recentPurchases.find(p =>
                   p.items.some(i => i.name === item.name));
 
                 return (
@@ -791,9 +797,9 @@ function BudgetTab({
                 <div className="text-2xl font-bold">₹{monthlyBudget.toLocaleString('en-IN')}</div>
               )}
             </div>
-            <Progress 
-              value={(currentMonthSpending / monthlyBudget) * 100} 
-              className="h-3" 
+            <Progress
+              value={(currentMonthSpending / monthlyBudget) * 100}
+              className="h-3"
             />
             <div className="flex justify-between mt-2">
               <p className="text-sm text-gray-500">₹0</p>
@@ -821,9 +827,9 @@ function BudgetTab({
                 <div className="text-2xl font-bold">₹{weeklyBudget.toLocaleString('en-IN')}</div>
               )}
             </div>
-            <Progress 
-              value={(currentWeekSpending / weeklyBudget) * 100} 
-              className="h-3" 
+            <Progress
+              value={(currentWeekSpending / weeklyBudget) * 100}
+              className="h-3"
             />
             <div className="flex justify-between mt-2">
               <p className="text-sm text-gray-500">₹0</p>
@@ -834,14 +840,14 @@ function BudgetTab({
         <CardFooter className="justify-end gap-4">
           {isEditingBudget ? (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="text-lg h-12 px-6"
                 onClick={() => setIsEditingBudget(false)}
               >
                 Cancel
               </Button>
-              <Button 
+              <Button
                 className="text-lg h-12 px-6"
                 onClick={handleSaveBudget}
               >
@@ -849,7 +855,7 @@ function BudgetTab({
               </Button>
             </>
           ) : (
-            <Button 
+            <Button
               className="text-lg h-12 px-6"
               onClick={() => setIsEditingBudget(true)}
             >

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState } from 'react';
-import { User, Mail, Lock, KeyRound, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Lock, KeyRound, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function CustomerSignupPage() {
   const [formData, setFormData] = useState({
@@ -20,7 +20,8 @@ export default function CustomerSignupPage() {
   const [errors, setErrors] = useState({
     passwordMatch: false,
     passwordStrength: false,
-    emailValid: false
+    emailValid: false,
+    apiError: null
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -65,14 +66,41 @@ export default function CustomerSignupPage() {
 
     // If all validations pass
     if (isEmailValid && isPasswordStrong && doPasswordsMatch) {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setIsSuccess(true);
+      try {
+        // Call the registration API
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fullName: formData.fullName,
+            email: formData.email,
+            password: formData.password,
+            confirmPassword: formData.confirmPassword,
+            role: 'Customer'
+          }),
+        });
 
-      // Redirect after showing success
-      setTimeout(() => {
-        router.push('/customer/dashboard');
-      }, 2000);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Registration failed');
+        }
+
+        setIsSuccess(true);
+
+        // Redirect after showing success
+        setTimeout(() => {
+          router.push('/login');
+        }, 2000);
+      } catch (error) {
+        console.error('Registration error:', error);
+        setErrors(prev => ({
+          ...prev,
+          apiError: error.message
+        }));
+      }
     }
     setIsSubmitting(false);
   };
@@ -206,6 +234,17 @@ export default function CustomerSignupPage() {
                   </motion.p>
                 )}
               </div>
+
+              {errors.apiError && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-md"
+                >
+                  <AlertCircle className="h-5 w-5" />
+                  <span>{errors.apiError}</span>
+                </motion.div>
+              )}
 
               {isSuccess && (
                 <motion.div

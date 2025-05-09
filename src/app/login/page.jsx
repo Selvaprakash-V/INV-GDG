@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -32,8 +33,19 @@ export default function LoginPage() {
     }
 
     try {
-      // Simulate API call (replace with actual authentication logic)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Call the NextAuth API for authentication
+      const response = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+        role: selectedRole,
+      });
+
+      if (response.error) {
+        setError('Login failed. Please check your credentials.');
+        setIsSubmitting(false);
+        return;
+      }
 
       // On successful login, redirect based on role
       if (selectedRole === 'Administrator') {

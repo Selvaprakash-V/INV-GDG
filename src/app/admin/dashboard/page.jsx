@@ -16,10 +16,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { 
-  Search, Bell, Settings, LogOut, ChevronDown, 
-  Calendar as CalendarIcon, Package, AlertCircle, BarChart2 
+import {
+  Search, Bell, Settings, LogOut, ChevronDown,
+  Calendar as CalendarIcon, Package, AlertCircle, BarChart2, Brain
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the PredictiveAnalysis component to avoid SSR issues with charts
+const PredictiveAnalysis = dynamic(
+  () => import('@/components/admin/PredictiveAnalysis'),
+  { ssr: false }
+);
 import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
 export default function AdminDashboard() {
@@ -47,8 +54,8 @@ export default function AdminDashboard() {
       { id: 12, name: 'Greek Yogurt', category: 'Dairy', stock: 23, expiry: '2025-06-25', status: 'expiring' },
       { id: 13, name: 'Lays Classic Chips', category: 'Snacks', stock: 56, expiry: '2025-10-22', status: 'fresh' },
       { id: 14, name: 'Dettol Hand Wash', category: 'Personal Care', stock: 34, expiry: '2026-03-15', status: 'fresh' }
-      
-    
+
+
   ];
 
   // Expiring soon items (within 7 days)
@@ -72,7 +79,7 @@ export default function AdminDashboard() {
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
       days.push(null);
@@ -85,8 +92,8 @@ export default function AdminDashboard() {
       days.push({
         day: i,
         itemsExpiring,
-        isToday: new Date().getDate() === i && 
-                new Date().getMonth() === currentMonth && 
+        isToday: new Date().getDate() === i &&
+                new Date().getMonth() === currentMonth &&
                 new Date().getFullYear() === currentYear
       });
     }
@@ -106,7 +113,7 @@ export default function AdminDashboard() {
     setCurrentMonth(prev => {
       let newMonth = prev + increment;
       let newYear = currentYear;
-      
+
       if (newMonth < 0) {
         newMonth = 11;
         newYear--;
@@ -114,7 +121,7 @@ export default function AdminDashboard() {
         newMonth = 0;
         newYear++;
       }
-      
+
       setCurrentYear(newYear);
       return newMonth;
     });
@@ -167,7 +174,7 @@ const expiryData = [
           <div className="space-y-6">
             <h2 className="text-2xl font-bold">Inventory Management</h2>
             <p className="text-gray-600">View and manage all your inventory items</p>
-            
+
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -208,7 +215,7 @@ const expiryData = [
                             value={(item.stock / 200) * 100}
                             className="h-2 w-24"
                             indicatorcolor={
-                              item.stock > 50 ? 'bg-green-500' : 
+                              item.stock > 50 ? 'bg-green-500' :
                               item.stock > 20 ? 'bg-yellow-500' : 'bg-red-500'
                             }
                           />
@@ -244,7 +251,7 @@ const expiryData = [
           <div className="space-y-6">
             <h2 className="text-2xl font-bold">Expiry Alerts</h2>
             <p className="text-gray-600">Products that are expiring soon or have expired</p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Expiring Soon */}
               <Card className="border border-yellow-200">
@@ -309,7 +316,7 @@ const expiryData = [
           <div className="space-y-6">
             <h2 className="text-2xl font-bold">Inventory Reports</h2>
             <p className="text-gray-600">Generate and view inventory reports</p>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Stock Level Report */}
               <Card>
@@ -424,9 +431,9 @@ const expiryData = [
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Inventory Calendar</h2>
               <div className="flex items-center gap-4">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleMonthChange(-1)}
                 >
                   Previous
@@ -434,9 +441,9 @@ const expiryData = [
                 <h3 className="text-xl font-semibold">
                   {new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}
                 </h3>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleMonthChange(1)}
                 >
                   Next
@@ -444,7 +451,7 @@ const expiryData = [
               </div>
             </div>
             <p className="text-gray-600">View expiry dates and inventory events</p>
-            
+
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               <div className="grid grid-cols-7 gap-px bg-gray-200">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
@@ -453,11 +460,11 @@ const expiryData = [
                   </div>
                 ))}
               </div>
-              
+
               <div className="grid grid-cols-7 gap-px bg-gray-200">
                 {calendarDays.map((day, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`bg-white min-h-24 p-2 ${day?.isToday ? 'ring-2 ring-purple-500' : ''}`}
                   >
                     {day ? (
@@ -468,8 +475,8 @@ const expiryData = [
                         {day.itemsExpiring.length > 0 && (
                           <div className="mt-1 space-y-1">
                             {day.itemsExpiring.slice(0, 2).map(item => (
-                              <div 
-                                key={item.id} 
+                              <div
+                                key={item.id}
                                 className="text-xs p-1 rounded bg-red-50 text-red-700 truncate"
                                 title={`${item.name} expires today`}
                               >
@@ -520,7 +527,7 @@ const expiryData = [
                         const today = new Date();
                         const diffTime = expiryDate.getTime() - today.getTime();
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        
+
                         return (
                           <TableRow key={item.id}>
                             <TableCell>{item.name}</TableCell>
@@ -539,6 +546,17 @@ const expiryData = [
               </CardContent>
             </Card>
           </div>
+        );
+
+      case 'ai-analysis':
+        return (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <PredictiveAnalysis />
+          </motion.div>
         );
       default:
         return (
@@ -587,40 +605,40 @@ const expiryData = [
               transition={{ delay: 0.3 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8"
             >
-              <StatCard 
-                title="Total Items" 
-                value={stats.totalItems} 
-                icon={<Package className="h-6 w-6" />} 
-                color="bg-purple-100" 
-                textColor="text-purple-600" 
+              <StatCard
+                title="Total Items"
+                value={stats.totalItems}
+                icon={<Package className="h-6 w-6" />}
+                color="bg-purple-100"
+                textColor="text-purple-600"
               />
-              <StatCard 
-                title="Available" 
-                value={stats.availableItems} 
-                icon={<Package className="h-6 w-6" />} 
-                color="bg-green-100" 
-                textColor="text-green-600" 
+              <StatCard
+                title="Available"
+                value={stats.availableItems}
+                icon={<Package className="h-6 w-6" />}
+                color="bg-green-100"
+                textColor="text-green-600"
               />
-              <StatCard 
-                title="Out of Stock" 
-                value={stats.outOfStock} 
-                icon={<AlertCircle className="h-6 w-6" />} 
-                color="bg-red-100" 
-                textColor="text-red-600" 
+              <StatCard
+                title="Out of Stock"
+                value={stats.outOfStock}
+                icon={<AlertCircle className="h-6 w-6" />}
+                color="bg-red-100"
+                textColor="text-red-600"
               />
-              <StatCard 
-                title="Expiring Soon" 
-                value={stats.expiringSoon} 
-                icon={<AlertCircle className="h-6 w-6" />} 
-                color="bg-yellow-100" 
-                textColor="text-yellow-600" 
+              <StatCard
+                title="Expiring Soon"
+                value={stats.expiringSoon}
+                icon={<AlertCircle className="h-6 w-6" />}
+                color="bg-yellow-100"
+                textColor="text-yellow-600"
               />
-              <StatCard 
-                title="Expired" 
-                value={stats.expired} 
-                icon={<AlertCircle className="h-6 w-6" />} 
-                color="bg-red-100" 
-                textColor="text-red-600" 
+              <StatCard
+                title="Expired"
+                value={stats.expired}
+                icon={<AlertCircle className="h-6 w-6" />}
+                color="bg-red-100"
+                textColor="text-red-600"
               />
             </motion.div>
 
@@ -721,7 +739,7 @@ const expiryData = [
                             value={(item.stock / 200) * 100}
                             className="h-2 w-24"
                             indicatorcolor={
-                              item.stock > 50 ? 'bg-green-500' : 
+                              item.stock > 50 ? 'bg-green-500' :
                               item.stock > 20 ? 'bg-yellow-500' : 'bg-red-500'
                             }
                           />
@@ -780,7 +798,7 @@ const expiryData = [
                 <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
               </Button>
             </motion.div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <motion.div whileHover={{ scale: 1.05 }} className="flex items-center space-x-2 cursor-pointer">
@@ -821,6 +839,7 @@ const expiryData = [
               { name: 'Expiry Alerts', icon: <AlertCircle className="h-5 w-5" />, tab: 'alerts' },
               { name: 'Reports', icon: <BarChart2 className="h-5 w-5" />, tab: 'reports' },
               { name: 'Calendar', icon: <CalendarIcon className="h-5 w-5" />, tab: 'calendar' },
+              { name: 'AI Analysis', icon: <Brain className="h-5 w-5" />, tab: 'ai-analysis' },
             ].map((item) => (
               <motion.div
                 key={item.name}
@@ -830,8 +849,8 @@ const expiryData = [
                 <button
                   onClick={() => handleTabChange(item.tab)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === item.tab 
-                      ? 'bg-purple-100 text-purple-700 font-medium' 
+                    activeTab === item.tab
+                      ? 'bg-purple-100 text-purple-700 font-medium'
                       : 'text-gray-600 hover:bg-purple-50'
                   }`}
                 >

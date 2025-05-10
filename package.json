@@ -20,7 +20,7 @@
     "framer-motion": "^12.6.3",
     "lucide-react": "^0.487.0",
     "mongodb": "^6.3.0",
-    "mongoose": "^8.0.3",
+    "mongoose": "^8.14.2",
     "next": "^15.2.4",
     "next-auth": "^4.24.5",
     "postcss": "^8.5.3",

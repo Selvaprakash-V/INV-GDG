@@ -13,30 +13,48 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        await dbConnect();
+        try {
+          console.log('Authorizing with credentials:', credentials);
+          await dbConnect();
+          console.log('Database connected');
 
-        // Find user by email
-        const user = await User.findOne({ email: credentials.email });
+          // Find user by email
+          const user = await User.findOne({ email: credentials.email });
+          console.log('User found:', user ? 'Yes' : 'No');
 
-        // Check if user exists
-        if (!user) {
-          throw new Error('No user found with this email');
+          // Check if user exists
+          if (!user) {
+            console.log('No user found with this email');
+            throw new Error('No user found with this email');
+          }
+
+          // Check if the role matches
+          if (credentials.role && user.role !== credentials.role) {
+            console.log('Role mismatch. User role:', user.role, 'Requested role:', credentials.role);
+            throw new Error('Invalid role for this user');
+          }
+
+          // Compare passwords using the method we added to the User model
+          const isPasswordMatch = await user.comparePassword(credentials.password);
+          console.log('Password match:', isPasswordMatch ? 'Yes' : 'No');
+
+          if (!isPasswordMatch) {
+            console.log('Password does not match');
+            throw new Error('Password does not match');
+          }
+
+          console.log('Authentication successful');
+          return {
+            id: user._id.toString(),
+            name: user.fullName,
+            email: user.email,
+            role: user.role,
+            shopName: user.shopName || null,
+          };
+        } catch (error) {
+          console.error('Authorization error:', error);
+          throw error;
         }
-
-        // Compare passwords using the method we added to the User model
-        const isPasswordMatch = await user.comparePassword(credentials.password);
-
-        if (!isPasswordMatch) {
-          throw new Error('Password does not match');
-        }
-
-        return {
-          id: user._id.toString(),
-          name: user.fullName,
-          email: user.email,
-          role: user.role,
-          shopName: user.shopName || null,
-        };
       },
     }),
   ],

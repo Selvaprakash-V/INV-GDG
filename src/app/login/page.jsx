@@ -25,6 +25,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError('');
 
     if (!selectedRole || !email || !password) {
       setError('Please fill all fields correctly!');
@@ -33,16 +34,22 @@ export default function LoginPage() {
     }
 
     try {
+      console.log('Attempting login with:', { email, role: selectedRole });
+
       // Call the NextAuth API for authentication
       const response = await signIn('credentials', {
         redirect: false,
         email,
         password,
         role: selectedRole,
+        callbackUrl: selectedRole === 'Administrator' ? '/admin/dashboard' : '/customer/dashboard'
       });
 
-      if (response.error) {
-        setError('Login failed. Please check your credentials.');
+      console.log('Login response:', response);
+
+      if (response?.error) {
+        console.error('Login error from response:', response.error);
+        setError('Login failed. Please check your credentials and role selection.');
         setIsSubmitting(false);
         return;
       }

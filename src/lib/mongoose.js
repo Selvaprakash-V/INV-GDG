@@ -20,20 +20,36 @@ if (!cached) {
 }
 
 async function dbConnect() {
+  console.log('Attempting to connect to MongoDB...');
+
   if (cached.conn) {
+    console.log('Using existing MongoDB connection');
     return cached.conn;
   }
 
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 10000, // Timeout after 10 seconds
+      serverSelectionTimeoutMS: 30000, // Increased timeout to 30 seconds
       socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      maxPoolSize: 10, // Maintain up to 10 socket connections
+      family: 4, // Use IPv4, skip trying IPv6
     };
 
+    console.log('Creating new MongoDB connection...');
     cached.promise = mongoose.connect(MONGODB_URI, opts)
       .then((mongoose) => {
         console.log('MongoDB connected successfully');
+        mongoose.connection.on('error', (err) => {
+          console.error('MongoDB connection error:', err);
+        });
+        mongoose.connection.on('disconnected', () => {
+          console.log('MongoDB disconnected');
+          cached.conn = null;
+          cached.promise = null;
+        });
         return mongoose;
       })
       .catch((error) => {
@@ -44,10 +60,15 @@ async function dbConnect() {
   }
 
   try {
+    console.log('Waiting for MongoDB connection...');
     cached.conn = await cached.promise;
+    console.log('MongoDB connection established');
     return cached.conn;
   } catch (error) {
     console.error('Failed to connect to MongoDB:', error);
+    // Reset the connection cache to allow retry on next request
+    cached.conn = null;
+    cached.promise = null;
     throw error;
   }
 }

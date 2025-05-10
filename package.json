@@ -36,6 +36,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "dev:notrace": "set NEXT_TELEMETRY_DISABLED=1 && next dev",
     "build": "next build",
     "start": "next start"
   },

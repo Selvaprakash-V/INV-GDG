@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import AuthenticatedLayout from '@/app/AuthenticatedLayout';
-import SessionWrapper from '@/components/SessionWrapper';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -193,10 +191,8 @@ export default function ClientAddProductPage() {
   };
 
   return (
-    <SessionWrapper>
-      <AuthenticatedLayout>
-        <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100 py-12 px-4">
-        <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
         <Button
           variant="ghost"
           className="mb-6"
@@ -391,9 +387,7 @@ export default function ClientAddProductPage() {
             </CardContent>
           </Card>
         </motion.div>
-        </div>
-        </div>
-      </AuthenticatedLayout>
-    </SessionWrapper>
+      </div>
+    </div>
   );
 }

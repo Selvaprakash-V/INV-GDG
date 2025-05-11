@@ -1,14 +1,13 @@
-import ClientCustomerDashboard from './client-page';
+import ClientEditProductPage from './client-page';
 import SessionWrapper from '@/components/SessionWrapper';
 import AuthenticatedLayout from '@/app/AuthenticatedLayout';
 
-export default function CustomerDashboard() {
+export default function EditProductPage() {
   return (
     <SessionWrapper>
       <AuthenticatedLayout>
-        <ClientCustomerDashboard />
+        <ClientEditProductPage />
       </AuthenticatedLayout>
     </SessionWrapper>
   );
-
 }

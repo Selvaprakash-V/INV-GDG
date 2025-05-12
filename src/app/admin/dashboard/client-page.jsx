@@ -20,7 +20,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   Search, Bell, Settings, LogOut, ChevronDown, Edit, Trash2,
-  Calendar as CalendarIcon, Package, AlertCircle, BarChart2, Brain, MoreHorizontal
+  Calendar as CalendarIcon, Package, AlertCircle, BarChart2, Brain, MoreHorizontal,
+  PieChart as PieChartIcon
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import {
@@ -35,12 +36,19 @@ import {
 import { useSession } from 'next-auth/react';
 import { format } from 'date-fns';
 
-// Dynamically import the PredictiveAnalysis component to avoid SSR issues with charts
+// Dynamically import chart components to avoid SSR issues
 const PredictiveAnalysis = dynamic(
   () => import('@/components/admin/PredictiveAnalysis'),
   { ssr: false }
 );
-import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+
+// Import dashboard chart components
+const DashboardCharts = {
+  StockTrendChart: dynamic(() => import('@/components/admin/DashboardCharts').then(mod => mod.StockTrendChart), { ssr: false }),
+  StockLevelDistributionChart: dynamic(() => import('@/components/admin/DashboardCharts').then(mod => mod.StockLevelDistributionChart), { ssr: false }),
+  CategoryStockChart: dynamic(() => import('@/components/admin/DashboardCharts').then(mod => mod.CategoryStockChart), { ssr: false }),
+  TopProductsChart: dynamic(() => import('@/components/admin/DashboardCharts').then(mod => mod.TopProductsChart), { ssr: false })
+};
 
 // Stat Card Component
 function StatCard({ title, value, icon, color, textColor }) {
@@ -296,6 +304,51 @@ export default function ClientAdminDashboard() {
     { name: 'Dairy', value: inventoryData.filter(item => item.category === 'Dairy').length },
     { name: 'Snacks', value: inventoryData.filter(item => item.category === 'Snacks').length },
     { name: 'Personal Care', value: inventoryData.filter(item => item.category === 'Personal Care').length },
+  ];
+
+  // Stock level distribution data
+  const stockLevelData = [
+    { name: 'Critical (0-10)', value: inventoryData.filter(item => item.stock >= 0 && item.stock <= 10).length, color: '#ef4444' },
+    { name: 'Low (11-30)', value: inventoryData.filter(item => item.stock > 10 && item.stock <= 30).length, color: '#f59e0b' },
+    { name: 'Medium (31-70)', value: inventoryData.filter(item => item.stock > 30 && item.stock <= 70).length, color: '#3b82f6' },
+    { name: 'High (71+)', value: inventoryData.filter(item => item.stock > 70).length, color: '#10b981' },
+  ];
+
+  // Category-based stock data
+  const categoryStockData = [
+    { name: 'Beverages', stock: inventoryData.filter(item => item.category === 'Beverages').reduce((sum, item) => sum + item.stock, 0) },
+    { name: 'Bakery', stock: inventoryData.filter(item => item.category === 'Bakery').reduce((sum, item) => sum + item.stock, 0) },
+    { name: 'Dairy', stock: inventoryData.filter(item => item.category === 'Dairy').reduce((sum, item) => sum + item.stock, 0) },
+    { name: 'Snacks', stock: inventoryData.filter(item => item.category === 'Snacks').reduce((sum, item) => sum + item.stock, 0) },
+    { name: 'Personal Care', stock: inventoryData.filter(item => item.category === 'Personal Care').reduce((sum, item) => sum + item.stock, 0) },
+  ];
+
+  // Top 5 products by stock
+  const topProductsByStock = [...inventoryData]
+    .sort((a, b) => b.stock - a.stock)
+    .slice(0, 5)
+    .map(item => ({ name: item.name, stock: item.stock }));
+
+  // Low stock products (less than 15 units)
+  const lowStockProducts = inventoryData
+    .filter(item => item.stock > 0 && item.stock < 15)
+    .sort((a, b) => a.stock - b.stock)
+    .slice(0, 5);
+
+  // Mock data for stock trend (in a real app, this would come from historical data)
+  const stockTrendData = [
+    { name: 'Jan', stock: 320 },
+    { name: 'Feb', stock: 350 },
+    { name: 'Mar', stock: 290 },
+    { name: 'Apr', stock: 400 },
+    { name: 'May', stock: 380 },
+    { name: 'Jun', stock: 420 },
+    { name: 'Jul', stock: 450 },
+    { name: 'Aug', stock: 470 },
+    { name: 'Sep', stock: 490 },
+    { name: 'Oct', stock: 520 },
+    { name: 'Nov', stock: 550 },
+    { name: 'Dec', stock: inventoryData.reduce((sum, item) => sum + item.stock, 0) },
   ];
 
   // Scroll effect for header
@@ -714,56 +767,190 @@ export default function ClientAdminDashboard() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard
-                title="Total Products"
-                value={stats.totalItems}
-                icon={<Package className="h-5 w-5 text-purple-600" />}
-                color="bg-white"
-                textColor="text-purple-600"
-              />
-              <StatCard
-                title="Available Products"
-                value={stats.availableItems}
-                icon={<Package className="h-5 w-5 text-green-600" />}
-                color="bg-white"
-                textColor="text-green-600"
-              />
-              <StatCard
-                title="Out of Stock"
-                value={stats.outOfStock}
-                icon={<AlertCircle className="h-5 w-5 text-red-600" />}
-                color="bg-white"
-                textColor="text-red-600"
-              />
-              <StatCard
-                title="Expiring Soon"
-                value={stats.expiringSoon}
-                icon={<AlertCircle className="h-5 w-5 text-yellow-600" />}
-                color="bg-white"
-                textColor="text-yellow-600"
-              />
+              <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 300 }}>
+                <StatCard
+                  title="Total Products"
+                  value={stats.totalItems}
+                  icon={<Package className="h-5 w-5 text-purple-600" />}
+                  color="bg-white"
+                  textColor="text-purple-600"
+                />
+              </motion.div>
+              <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 300 }}>
+                <StatCard
+                  title="Available Products"
+                  value={stats.availableItems}
+                  icon={<Package className="h-5 w-5 text-green-600" />}
+                  color="bg-white"
+                  textColor="text-green-600"
+                />
+              </motion.div>
+              <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 300 }}>
+                <StatCard
+                  title="Out of Stock"
+                  value={stats.outOfStock}
+                  icon={<AlertCircle className="h-5 w-5 text-red-600" />}
+                  color="bg-white"
+                  textColor="text-red-600"
+                />
+              </motion.div>
+              <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 300 }}>
+                <StatCard
+                  title="Expiring Soon"
+                  value={stats.expiringSoon}
+                  icon={<AlertCircle className="h-5 w-5 text-yellow-600" />}
+                  color="bg-white"
+                  textColor="text-yellow-600"
+                />
+              </motion.div>
             </div>
 
-            {/* Quick Actions */}
-            <Card className="border border-gray-200">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
-                  onClick={() => router.push('/admin/add-product')}
-                >
-                  Add Product
-                </Button>
-                <Button variant="outline" onClick={() => handleTabChange('inventory')}>
-                  View Inventory
-                </Button>
-                <Button variant="outline" onClick={() => handleTabChange('alerts')}>
-                  Check Alerts
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Stock Overview Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Stock Trend Chart */}
+              <DashboardCharts.StockTrendChart data={stockTrendData} />
+
+              {/* Stock Level Distribution */}
+              <DashboardCharts.StockLevelDistributionChart data={stockLevelData} />
+            </div>
+
+            {/* Category Stock and Top Products */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Category Stock Chart */}
+              <DashboardCharts.CategoryStockChart data={categoryStockData} />
+
+              {/* Top Products by Stock */}
+              <DashboardCharts.TopProductsChart data={topProductsByStock} />
+            </div>
+
+            {/* Low Stock Alert and Quick Actions */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Low Stock Alert */}
+              <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="bg-gradient-to-r from-red-50 to-orange-50 border-b border-red-100">
+                  <CardTitle className="flex items-center text-red-800">
+                    <AlertCircle className="mr-2 h-5 w-5 text-red-600" />
+                    Low Stock Alert
+                  </CardTitle>
+                  <CardDescription>
+                    Products that need to be restocked soon
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {lowStockProducts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="bg-green-50 p-3 rounded-full mb-4">
+                        <Package className="h-8 w-8 text-green-500" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900">No low stock products</h3>
+                      <p className="text-gray-500 max-w-md mt-1">
+                        All your products have sufficient stock levels.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {lowStockProducts.map((item) => (
+                        <div key={item.id} className="p-4 hover:bg-red-50/30 transition-colors">
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-start gap-3">
+                              <div className="p-2 rounded-full bg-red-100">
+                                <AlertCircle className="h-5 w-5 text-red-500" />
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-gray-900">{item.name}</h4>
+                                <p className="text-sm text-gray-500">{item.category} • Stock: {item.stock}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <Badge variant="destructive" className="mb-1">
+                                Low Stock
+                              </Badge>
+                              <Progress
+                                value={(item.stock / 100) * 100}
+                                className={`h-2 w-24 mt-1 ${item.stock < 5 ? "bg-red-500" : "bg-orange-500"}`}
+                              />
+                            </div>
+                          </div>
+                          <div className="mt-3 flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => router.push(`/admin/edit-product/${item.id}`)}
+                            >
+                              <Edit className="mr-1 h-3 w-3" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700"
+                            >
+                              Restock
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="bg-gradient-to-r from-violet-50 to-indigo-50 border-b border-violet-100">
+                  <CardTitle className="flex items-center text-violet-800">
+                    <Settings className="mr-2 h-5 w-5 text-violet-600" />
+                    Quick Actions
+                  </CardTitle>
+                  <CardDescription>
+                    Common tasks and shortcuts
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 gap-4">
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <Button
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 h-12"
+                        onClick={() => router.push('/admin/add-product')}
+                      >
+                        <Package className="mr-2 h-5 w-5" />
+                        Add New Product
+                      </Button>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 border-purple-200 hover:bg-purple-50"
+                        onClick={() => handleTabChange('inventory')}
+                      >
+                        <BarChart2 className="mr-2 h-5 w-5 text-purple-600" />
+                        View Full Inventory
+                      </Button>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 border-orange-200 hover:bg-orange-50"
+                        onClick={() => handleTabChange('alerts')}
+                      >
+                        <AlertCircle className="mr-2 h-5 w-5 text-orange-600" />
+                        Check Expiry Alerts
+                      </Button>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 border-blue-200 hover:bg-blue-50"
+                        onClick={() => handleTabChange('reports')}
+                      >
+                        <BarChart2 className="mr-2 h-5 w-5 text-blue-600" />
+                        Generate Reports
+                      </Button>
+                    </motion.div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         );
     }

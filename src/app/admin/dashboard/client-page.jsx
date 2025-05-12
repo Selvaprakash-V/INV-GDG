@@ -50,6 +50,12 @@ const DashboardCharts = {
   TopProductsChart: dynamic(() => import('@/components/admin/DashboardCharts').then(mod => mod.TopProductsChart), { ssr: false })
 };
 
+// Import enhanced calendar component
+const EnhancedCalendar = dynamic(
+  () => import('@/components/admin/EnhancedCalendar'),
+  { ssr: false }
+);
+
 // Stat Card Component
 function StatCard({ title, value, icon, color, textColor }) {
   return (
@@ -80,27 +86,30 @@ export default function ClientAdminDashboard() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [inventoryData, setInventoryData] = useState([]);
+  const [purchasesData, setPurchasesData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Fetch products from API
+  // Fetch products and purchases from API
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       if (status === 'authenticated') {
         try {
           setIsLoading(true);
-          const response = await fetch('/api/products');
-          const data = await response.json();
 
-          if (!response.ok) {
-            throw new Error(data.message || 'Failed to fetch products');
+          // Fetch products
+          const productsResponse = await fetch('/api/products');
+          const productsData = await productsResponse.json();
+
+          if (!productsResponse.ok) {
+            throw new Error(productsData.message || 'Failed to fetch products');
           }
 
-          // Transform the data to match the expected format
-          const formattedData = data.products.map(product => {
+          // Transform the products data
+          const formattedProductsData = productsData.products.map(product => {
             // Calculate status based on expiry date
             const expiryDate = new Date(product.expiryDate);
             const today = new Date();
@@ -131,10 +140,34 @@ export default function ClientAdminDashboard() {
             };
           });
 
-          setInventoryData(formattedData);
+          setInventoryData(formattedProductsData);
+
+          // Fetch purchases
+          const purchasesResponse = await fetch('/api/purchases');
+          const purchasesData = await purchasesResponse.json();
+
+          if (!purchasesResponse.ok) {
+            console.warn('Failed to fetch purchases:', purchasesData.message);
+            // Don't throw error for purchases to allow the page to load with just products
+          } else {
+            // Format purchases data
+            const formattedPurchasesData = purchasesData.purchases.map(purchase => ({
+              id: purchase._id,
+              customerId: purchase.customerId,
+              customerName: purchase.customerId?.fullName || 'Unknown Customer',
+              items: purchase.items,
+              totalAmount: purchase.totalAmount,
+              purchaseDate: purchase.purchaseDate,
+              paymentMethod: purchase.paymentMethod,
+              receiptNumber: purchase.receiptNumber
+            }));
+
+            setPurchasesData(formattedPurchasesData);
+          }
+
           setError(null);
         } catch (err) {
-          console.error('Error fetching products:', err);
+          console.error('Error fetching data:', err);
           setError(err.message);
         } finally {
           setIsLoading(false);
@@ -142,7 +175,7 @@ export default function ClientAdminDashboard() {
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, [status]);
 
   // Handle delete product
@@ -363,6 +396,86 @@ export default function ClientAdminDashboard() {
   // Render different content based on active tab
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'calendar':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold">Inventory Calendar</h2>
+                <p className="text-gray-600">View product purchases and expiry dates at a glance</p>
+              </div>
+            </div>
+
+            {/* Enhanced Calendar Component */}
+            <EnhancedCalendar
+              products={inventoryData}
+              purchases={purchasesData}
+            />
+
+            {/* Upcoming Expiry Summary */}
+            <Card className="border border-gray-200">
+              <CardHeader className="bg-orange-50 border-b border-orange-100">
+                <CardTitle className="flex items-center text-orange-800">
+                  <AlertCircle className="mr-2 h-5 w-5 text-orange-600" />
+                  Upcoming Expiry Summary
+                </CardTitle>
+                <CardDescription>
+                  Products expiring in the next 30 days
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                {expiringSoonItems.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="bg-green-50 p-3 rounded-full mb-4">
+                      <Package className="h-8 w-8 text-green-500" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900">No products expiring soon</h3>
+                    <p className="text-gray-500 max-w-md mt-1">
+                      All your products are fresh! You'll be notified here when products are about to expire.
+                    </p>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader className="bg-orange-50">
+                      <TableRow>
+                        <TableHead className="text-orange-800">Product</TableHead>
+                        <TableHead className="text-orange-800">Category</TableHead>
+                        <TableHead className="text-orange-800">Expiry Date</TableHead>
+                        <TableHead className="text-orange-800">Days Left</TableHead>
+                        <TableHead className="text-orange-800">Stock</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {expiringSoonItems
+                        .sort((a, b) => new Date(a.expiry) - new Date(b.expiry))
+                        .map(item => {
+                          const expiryDate = new Date(item.expiry);
+                          const today = new Date();
+                          const diffTime = expiryDate.getTime() - today.getTime();
+                          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                          return (
+                            <TableRow key={item.id}>
+                              <TableCell>{item.name}</TableCell>
+                              <TableCell>{item.category}</TableCell>
+                              <TableCell>{item.expiry}</TableCell>
+                              <TableCell>
+                                <Badge variant={diffDays <= 7 ? 'destructive' : 'warning'}>
+                                  {diffDays} days
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{item.stock}</TableCell>
+                            </TableRow>
+                          );
+                        })}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+
       case 'alerts':
         return (
           <div className="space-y-6">

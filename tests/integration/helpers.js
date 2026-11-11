@@ -8,6 +8,7 @@ import { User } from '@/server/db/models/User';
 import { Product } from '@/server/db/models/Product';
 import { Purchase } from '@/server/db/models/Purchase';
 import { Job } from '@/server/db/models/Job';
+import { AuthToken } from '@/server/db/models/AuthToken';
 import { ROLES } from '@/shared/constants';
 import { MS_PER_DAY } from '@/shared/constants';
 
@@ -19,7 +20,7 @@ export async function startDb() {
   process.env.MONGODB_AUTO_INDEX = 'true';
   resetEnvCache();
   await connectDb();
-  await Promise.all([User, Product, Purchase, Job].map((m) => m.syncIndexes()));
+  await Promise.all([User, Product, Purchase, Job, AuthToken].map((m) => m.syncIndexes()));
   return replSet;
 }
 

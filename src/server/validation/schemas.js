@@ -10,6 +10,9 @@ import {
   ANALYTICS_PERIODS,
 } from '@/shared/constants';
 import { ValidationError, formatZodIssues } from '../core/errors';
+import { AUTH } from '../config/constants';
+
+const AUTH_DELETE_CONFIRMATION = AUTH.DELETE_CONFIRMATION;
 
 // All input crosses this boundary. Schemas whitelist fields (unknown keys are
 // stripped), which closes the old mass-assignment hole (e.g. PUT { storeId }).
@@ -34,15 +37,45 @@ export const registerSchema = z
     shopName: z.string().trim().max(LIMITS.SHOP_NAME_MAX).optional(),
   })
   .superRefine((v, ctx) => {
-    if (v.password !== v.confirmPassword) {
-      ctx.addIssue({ code: 'custom', path: ['confirmPassword'], message: 'Passwords do not match' });
-    }
+    passwordsMatch(v, ctx);
     if (v.role === ROLES.ADMIN && !v.shopName) {
       ctx.addIssue({ code: 'custom', path: ['shopName'], message: 'Shop name is required for administrators' });
     }
   });
 
 export const loginSchema = z.object({ email, password: z.string().min(1).max(LIMITS.PASSWORD_MAX) });
+
+// ---------- account lifecycle ----------
+
+const token = z.string().trim().min(16, 'Invalid link').max(256, 'Invalid link');
+const currentPassword = z.string().min(1, 'Enter your current password').max(LIMITS.PASSWORD_MAX);
+
+/** Shared refinement (Extract Method): new password must match its confirmation. */
+const passwordsMatch = (v, ctx) => {
+  if (v.password !== v.confirmPassword) {
+    ctx.addIssue({ code: 'custom', path: ['confirmPassword'], message: 'Passwords do not match' });
+  }
+};
+
+export const emailOnlySchema = z.object({ email });
+
+export const resetPasswordSchema = z.object({ token, password, confirmPassword: z.string() }).superRefine(passwordsMatch);
+
+export const verifyEmailSchema = z.object({ token });
+
+export const changePasswordSchema = z
+  .object({ currentPassword, password, confirmPassword: z.string() })
+  .superRefine(passwordsMatch)
+  .superRefine((v, ctx) => {
+    if (v.currentPassword === v.password) {
+      ctx.addIssue({ code: 'custom', path: ['password'], message: 'Choose a password different from your current one' });
+    }
+  });
+
+export const deleteAccountSchema = z.object({
+  password: currentPassword,
+  confirmation: z.literal(AUTH_DELETE_CONFIRMATION, { error: `Type ${AUTH_DELETE_CONFIRMATION} to confirm` }),
+});
 
 const productFields = {
   name: z.string().trim().min(1, 'Name is required').max(LIMITS.NAME_MAX),

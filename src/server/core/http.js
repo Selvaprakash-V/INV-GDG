@@ -26,16 +26,24 @@ export function withApi(handler, options = {}) {
       const container = await getContainer();
 
       if (cronAuth) assertCronSecret(request, container.env.CRON_SECRET);
-      if (roles) user = await requireUser(request, roles, container.env.NEXTAUTH_SECRET);
+      if (db || roles) await connectDb();
+      if (roles) {
+        const session = await requireUser(request, roles, container.env.NEXTAUTH_SECRET);
+        // Deleted accounts / sessions older than the last password change stop here.
+        await container.accountService.assertSessionActive(session.user, session.authAt);
+        user = session.user;
+      }
       if (rateLimit) {
         const id = user?.id || clientIp(request.headers);
         const res = await container.rateLimiter.consume(rateLimit.name, id, rateLimit.policy);
         if (!res.allowed) throw new RateLimitError(res.retryAfterSeconds);
       }
-      if (db) await connectDb();
 
       const params = context?.params ? await context.params : {};
       const result = await handler({ request, params, query: url.searchParams, user, container, log });
+      // Opportunistic worker tick (throttled per instance): retries keep moving even
+      // where the platform's cron runs only daily.
+      if (!cronAuth) container.sweepJobs?.();
       const response = result instanceof Response ? result : NextResponse.json({ success: true, ...(result || {}) }, { status });
       response.headers.set('x-request-id', requestId);
       if (!response.headers.has('cache-control')) response.headers.set('cache-control', 'no-store');
@@ -64,7 +72,7 @@ async function requireUser(request, roles, secret) {
   if (!token?.id) throw new UnauthorizedError();
   const user = { id: token.id, role: token.role, shopName: token.shopName ?? null, name: token.name, email: token.email };
   if (Array.isArray(roles) && !roles.includes(user.role)) throw new ForbiddenError();
-  return user;
+  return { user, authAt: token.authAt };
 }
 
 function assertCronSecret(request, secret) {

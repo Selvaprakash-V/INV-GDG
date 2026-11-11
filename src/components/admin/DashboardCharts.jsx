@@ -15,7 +15,7 @@ const TOOLTIP_STYLE = { backgroundColor: 'white', borderRadius: '8px', boxShadow
 const AXIS_PROPS = { stroke: '#888', fontSize: 12 };
 
 /** Card shell shared by every dashboard chart: header + loading/error/empty handling. */
-function ChartCard({ title, description, Icon, headerClass, titleClass, iconClass, action, state, emptyText, children }) {
+function ChartCard({ title, description, Icon, headerClass, titleClass, iconClass, action, state, emptyText, children, srSummary }) {
   return (
     <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className={`border-b ${headerClass}`}>
@@ -37,6 +37,7 @@ function ChartCard({ title, description, Icon, headerClass, titleClass, iconClas
           errorTitle="Could not load chart"
           empty={<EmptyState title="No data yet" description={emptyText} tone="neutral" icon={Icon} className="h-full" />}
         >
+          {srSummary && <p className="sr-only">{srSummary}</p>}
           <ResponsiveContainer width="100%" height="100%">
             {children}
           </ResponsiveContainer>
@@ -115,6 +116,10 @@ export function SalesTrendChart({ data, loading, error, onRetry, period, onPerio
 
 export function StockLevelDistributionChart({ data, loading, error, onRetry }) {
   const series = (data ?? []).map((d, i) => ({ ...d, color: STOCK_LEVEL_COLORS[i % STOCK_LEVEL_COLORS.length] }));
+  // Only non-empty levels become slices (an empty slice still renders an unlabeled <text>);
+  // the legend lists every level so the scale stays readable.
+  const slices = series.filter((d) => d.value > 0);
+  const legend = series.map((d) => ({ id: d.name, value: d.name, type: 'circle', color: d.color }));
   return (
     <ChartCard
       title="Stock Level Distribution"
@@ -125,10 +130,11 @@ export function StockLevelDistributionChart({ data, loading, error, onRetry }) {
       iconClass="text-purple-600"
       state={chartState({ data, loading, error, onRetry }, (d) => d.every((s) => !s.value))}
       emptyText="Add products to see how stock is distributed."
+      srSummary={series.map((d) => `${d.name}: ${d.value} products`).join('; ')}
     >
       <PieChart>
         <Pie
-          data={series}
+          data={slices}
           cx="50%"
           cy="50%"
           innerRadius={60}
@@ -138,12 +144,13 @@ export function StockLevelDistributionChart({ data, loading, error, onRetry }) {
           label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
           labelLine={false}
         >
-          {series.map((entry) => (
-            <Cell key={entry.name} fill={entry.color} />
+          {slices.map((entry) => (
+            // Each slice is an SVG image to assistive tech; give it a name (axe: svg-img-alt).
+            <Cell key={entry.name} fill={entry.color} aria-label={`${entry.name}: ${entry.value} products`} />
           ))}
         </Pie>
         <Tooltip formatter={(value) => [`${value} products`, 'Count']} contentStyle={TOOLTIP_STYLE} />
-        <Legend verticalAlign="bottom" height={36} />
+        <Legend verticalAlign="bottom" height={36} payload={legend} />
       </PieChart>
     </ChartCard>
   );

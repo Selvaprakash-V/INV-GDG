@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import SiteFooter from '@/components/SiteFooter';
 
 export default function AboutPage() {
   const features = [
@@ -142,17 +143,7 @@ export default function AboutPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white py-6 text-center border-t border-gray-200">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="font-medium text-gray-600"
-        >
-          © 2025 INNOVAID. All Rights Reserved.
-        </motion.p>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

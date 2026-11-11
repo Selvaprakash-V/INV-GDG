@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScanSearch, BellRing, Package, Store, Lightbulb, Shield } from 'lucide-react';
+import SiteFooter from '@/components/SiteFooter';
 
 export default function ExploreCustomer() {
   const features = [
@@ -147,16 +148,7 @@ export default function ExploreCustomer() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white py-6 text-center border-t border-gray-200">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="font-medium text-gray-600"
-        >
-          © 2025 INNOVAID. All Rights Reserved.
-        </motion.p>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

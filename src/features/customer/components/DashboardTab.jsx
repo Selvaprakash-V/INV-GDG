@@ -82,7 +82,7 @@ function ExpiryPreview({ expiring, onViewAll }) {
   return (
     <Card className="bg-white border-0 shadow-lg border-orange-100">
       <CardHeader className="bg-orange-50/50 rounded-t-lg">
-        <CardTitle className="flex items-center text-2xl text-orange-600">
+        <CardTitle className="flex items-center text-2xl text-orange-700">
           <AlertTriangle className="mr-3 h-6 w-6" aria-hidden="true" />
           Expiry Alerts
         </CardTitle>
@@ -102,7 +102,7 @@ function ExpiryPreview({ expiring, onViewAll }) {
         </AsyncSection>
       </CardContent>
       <CardFooter className="justify-center border-t border-orange-100 pt-6">
-        <Button variant="ghost" className="text-orange-600 text-lg" onClick={onViewAll}>
+        <Button variant="ghost" className="text-orange-700 hover:text-orange-800 text-lg" onClick={onViewAll}>
           View All Alerts
         </Button>
       </CardFooter>

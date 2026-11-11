@@ -2,12 +2,13 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { addMonths, endOfMonth, startOfMonth, subMonths } from 'date-fns';
-import { useApi } from '@/lib/api-client';
-import { CALENDAR_FETCH_LIMIT } from '../constants';
+import { useApiAll } from '@/lib/api-client';
+import { CALENDAR_FETCH_LIMIT, CALENDAR_MAX_PAGES } from '../constants';
 
 /**
  * Visible calendar month plus the products expiring and purchases made in it.
- * Both requests are keyed on the month range, so navigating refetches.
+ * Follows pagination so busy months show every row (was capped at the first 100),
+ * up to CALENDAR_FETCH_LIMIT x CALENDAR_MAX_PAGES rows per list.
  */
 export function useCalendarMonth(initialDate = new Date()) {
   const [month, setMonth] = useState(() => startOfMonth(initialDate));
@@ -26,8 +27,8 @@ export function useCalendarMonth(initialDate = new Date()) {
     [range]
   );
 
-  const products = useApi('/api/products', productParams);
-  const purchases = useApi('/api/purchases', purchaseParams);
+  const products = useApiAll('/api/products', productParams, { itemsKey: 'products', maxPages: CALENDAR_MAX_PAGES });
+  const purchases = useApiAll('/api/purchases', purchaseParams, { itemsKey: 'purchases', maxPages: CALENDAR_MAX_PAGES });
 
   const goToPreviousMonth = useCallback(() => setMonth((m) => subMonths(m, 1)), []);
   const goToNextMonth = useCallback(() => setMonth((m) => addMonths(m, 1)), []);
@@ -42,10 +43,10 @@ export function useCalendarMonth(initialDate = new Date()) {
     month,
     goToPreviousMonth,
     goToNextMonth,
-    products: products.data?.products ?? null,
-    purchases: purchases.data?.purchases ?? null,
-    /** true when the month has more rows than one request returns */
-    truncated: Boolean(products.data?.pagination?.hasNext || purchases.data?.pagination?.hasNext),
+    products: products.items,
+    purchases: purchases.items,
+    /** true only when a month exceeds the safety cap */
+    truncated: products.truncated || purchases.truncated,
     loading: products.loading || purchases.loading,
     error: products.error || purchases.error,
     refetch,

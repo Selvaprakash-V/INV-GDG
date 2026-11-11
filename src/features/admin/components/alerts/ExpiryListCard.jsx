@@ -1,12 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { AlertCircle, Edit, Package, Trash2 } from 'lucide-react';
+import { daysUntil } from '@/shared/expiry';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { URGENT_EXPIRY_DAYS } from '../../constants';
 import { formatDate, pluralize } from '../../format';
 import { DataBlock, EmptyState } from '../DataState';
 import ToneBadge from '../ToneBadge';
+import PaginationControls from '../PaginationControls';
+import { useExpiryPage } from '../../hooks/useExpiryPage';
 
 const VARIANTS = {
   expiring: {
@@ -25,7 +29,9 @@ const VARIANTS = {
 
 function ExpiryRow({ item, variant, hover, onEdit, onDelete }) {
   const expired = variant === 'expired';
-  const urgent = expired || item.daysUntilExpiry <= URGENT_EXPIRY_DAYS;
+  // Summary rows carry daysUntilExpiry; rows from the products API do not.
+  const days = item.daysUntilExpiry ?? daysUntil(item.expiryDate);
+  const urgent = expired || days <= URGENT_EXPIRY_DAYS;
   return (
     <li className={`p-4 transition-colors ${hover}`}>
       <div className="flex justify-between items-start gap-3">
@@ -40,7 +46,7 @@ function ExpiryRow({ item, variant, hover, onEdit, onDelete }) {
         </div>
         <div className="text-right">
           <ToneBadge tone={urgent ? 'danger' : 'warning'} className="mb-1">
-            {expired ? 'Expired' : `${pluralize(item.daysUntilExpiry, 'day')} left`}
+            {expired ? 'Expired' : `${pluralize(days, 'day')} left`}
           </ToneBadge>
           <p className="text-sm text-gray-500">
             {expired ? 'Expired on' : 'Expires on'} {formatDate(item.expiryDate)}
@@ -64,22 +70,28 @@ function ExpiryRow({ item, variant, hover, onEdit, onDelete }) {
 }
 
 /**
- * List of expiring or expired products from the inventory summary.
- * `total` is the full count; the summary only returns the most urgent items.
+ * List of expiring or expired products. Starts with the most urgent items from the
+ * inventory summary; "View all" switches to the complete, paginated list.
  */
 export default function ExpiryListCard({
   variant,
   title,
   description,
-  items,
+  items: summaryItems,
   total,
+  thresholdDays,
+  refreshToken,
   emptyTitle,
   emptyDescription,
-  state,
+  state: summaryState,
   onEdit,
   onDelete,
 }) {
   const v = VARIANTS[variant];
+  const [showAll, setShowAll] = useState(false);
+  const full = useExpiryPage({ variant, thresholdDays, enabled: showAll, refreshToken });
+  const items = showAll ? full.items : summaryItems;
+  const state = showAll ? { loading: full.loading, error: full.error, onRetry: full.refetch } : summaryState;
   const shown = items?.length ?? 0;
   return (
     <Card className="border border-gray-200 gap-0 py-0 overflow-hidden">
@@ -102,10 +114,19 @@ export default function ExpiryListCard({
               <ExpiryRow key={item.id} item={item} variant={variant} hover={v.hover} onEdit={onEdit} onDelete={onDelete} />
             ))}
           </ul>
-          {total > shown && (
-            <p className="px-4 py-3 text-sm text-gray-500 border-t border-gray-100">
-              Showing the {shown} most urgent of {total} products.
-            </p>
+          {showAll ? (
+            <PaginationControls pagination={full.pagination} onPrev={full.prevPage} onNext={full.nextPage} disabled={full.loading} />
+          ) : (
+            total > shown && (
+              <div className="px-4 py-3 text-sm text-gray-600 border-t border-gray-100 flex items-center justify-between gap-2">
+                <span>
+                  Showing the {shown} most urgent of {total} products.
+                </span>
+                <Button variant="outline" size="sm" onClick={() => setShowAll(true)}>
+                  View all {total}
+                </Button>
+              </div>
+            )
           )}
         </DataBlock>
       </CardContent>

@@ -11,18 +11,33 @@ import { ROLE_HOME } from '@/shared/constants';
 import AuthCard, { AuthMessage } from './AuthCard';
 import AuthField from './AuthField';
 import { loginErrorMessage, safeCallbackUrl } from './authRules';
+import { api } from '@/lib/api-client';
 
 /** Email/password sign-in. The role comes from the account, not from the form. */
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const justRegistered = searchParams.get('registered') === '1';
+  const justReset = searchParams.get('reset') === '1';
+  const justDeleted = searchParams.get('deleted') === '1';
   const callbackUrl = safeCallbackUrl(searchParams.get('callbackUrl'));
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(() => loginErrorMessage(searchParams.get('error')));
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorCode, setErrorCode] = useState(searchParams.get('error'));
+  const [resendNote, setResendNote] = useState('');
+
+  const resendVerification = async () => {
+    setResendNote('');
+    try {
+      await api.post('/api/account/verify-email/resend', { email: email.trim() });
+      setResendNote('If that account still needs confirming, a new link is on its way.');
+    } catch {
+      setResendNote('Could not send right now. Please try again in a few minutes.');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,6 +52,7 @@ export default function LoginForm() {
     try {
       const result = await signIn('credentials', { email: email.trim(), password, redirect: false });
       if (!result || result.error) {
+        setErrorCode(result?.error ?? 'UNKNOWN');
         setError(loginErrorMessage(result?.error ?? 'UNKNOWN'));
         setIsSubmitting(false);
         return;
@@ -59,14 +75,18 @@ export default function LoginForm() {
       footer={
         <p className="text-sm text-gray-600">
           Don&apos;t have an account?{' '}
-          <Link href="/role" className="text-purple-600 font-medium hover:text-purple-700 hover:underline">
+          <Link href="/role" className="text-purple-700 font-medium hover:text-purple-800 hover:underline">
             Sign up
           </Link>
         </p>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        {justRegistered && <AuthMessage type="success">Account created. Please sign in.</AuthMessage>}
+        {justRegistered && (
+          <AuthMessage type="success">Account created. We sent a confirmation link to your email. You can sign in now.</AuthMessage>
+        )}
+        {justReset && <AuthMessage type="success">Password updated. Sign in with your new password.</AuthMessage>}
+        {justDeleted && <AuthMessage type="success">Your account has been deleted.</AuthMessage>}
 
         <AuthField
           id="email"
@@ -90,8 +110,21 @@ export default function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        <div className="flex justify-end -mt-2">
+          <Link href="/forgot-password" className="text-sm text-purple-700 hover:text-purple-800 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
 
         {error && <AuthMessage type="error">{error}</AuthMessage>}
+        {errorCode === 'EMAIL_NOT_VERIFIED' && (
+          <div className="text-sm text-gray-700 space-y-1">
+            <button type="button" onClick={resendVerification} className="text-purple-700 font-medium hover:underline">
+              Send a new confirmation link
+            </button>
+            {resendNote && <p role="status">{resendNote}</p>}
+          </div>
+        )}
 
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
           <Button

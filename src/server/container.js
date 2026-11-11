@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { after } from 'next/server';
 import { getEnv } from './config/env';
-import { CACHE_LIMITS, EVENTS, JOB_TYPES } from './config/constants';
+import { CACHE_LIMITS, EVENTS, JOBS, JOB_TYPES } from './config/constants';
 import { logger as rootLogger } from './core/logger';
 import { RateLimiter } from './core/rateLimiter';
 import { createCacheStore } from './cache/CacheStore';
@@ -14,10 +14,12 @@ import { ProductRepository } from './repositories/ProductRepository';
 import { PurchaseRepository } from './repositories/PurchaseRepository';
 import { UserRepository } from './repositories/UserRepository';
 import { JobRepository } from './repositories/JobRepository';
+import { AuthTokenRepository } from './repositories/AuthTokenRepository';
 import { UserService } from './services/UserService';
 import { ProductService } from './services/ProductService';
 import { PurchaseService } from './services/PurchaseService';
 import { NotificationService } from './services/NotificationService';
+import { AccountService } from './services/AccountService';
 import { AnalyticsService } from './services/analytics/AnalyticsService';
 import {
   InventorySummaryStrategy,
@@ -49,19 +51,36 @@ export async function createContainer(overrides = {}) {
   const productRepository = new ProductRepository({ readPreference });
   const purchaseRepository = new PurchaseRepository({ readPreference });
   const jobRepository = new JobRepository();
+  const authTokenRepository = new AuthTokenRepository();
 
   const jobQueue = new JobQueue({ jobRepository, logger, now });
   const notifier = overrides.notifier ?? createNotifier(env, logger);
 
   const userService = new UserService({ userRepository, cache, events, allowAdminSignup: env.ALLOW_ADMIN_SIGNUP });
   const productService = new ProductService({ productRepository, cache, events });
+  const runInTransaction = overrides.runInTransaction ?? ((fn) => mongoose.connection.transaction(fn));
   const purchaseService = new PurchaseService({
     purchaseRepository,
     productRepository,
     userRepository,
     events,
     now,
-    runInTransaction: overrides.runInTransaction ?? ((fn) => mongoose.connection.transaction(fn)),
+    runInTransaction,
+  });
+  const accountService = new AccountService({
+    userRepository,
+    authTokenRepository,
+    productRepository,
+    purchaseRepository,
+    jobQueue,
+    notifier,
+    events,
+    cache,
+    rateLimiter,
+    runInTransaction,
+    appUrl: env.APP_URL,
+    logger,
+    now,
   });
   const notificationService = new NotificationService({
     userRepository,
@@ -93,11 +112,20 @@ export async function createContainer(overrides = {}) {
   jobQueue
     .register(JOB_TYPES.EXPIRY_DIGEST, (p) => notificationService.handleExpiryDigest(p))
     .register(JOB_TYPES.LOW_STOCK_ALERT, (p) => notificationService.handleLowStock(p))
-    .register(JOB_TYPES.CONTACT_MESSAGE, (p) => notificationService.handleContactMessage(p));
+    .register(JOB_TYPES.CONTACT_MESSAGE, (p) => notificationService.handleContactMessage(p))
+    .register(JOB_TYPES.PASSWORD_RESET_EMAIL, (p) => accountService.deliverPasswordReset(p))
+    .register(JOB_TYPES.VERIFY_EMAIL, (p) => accountService.deliverVerificationEmail(p));
 
   // "Run soon, after the response": moves notification work off the request path.
   const defer = overrides.defer ?? defaultDefer(logger);
   const kickJobs = () => defer(() => jobQueue.drain());
+  let lastSweep = 0;
+  const sweepJobs = () => {
+    const t = now().getTime();
+    if (t - lastSweep < JOBS.SWEEP_INTERVAL_MS) return;
+    lastSweep = t;
+    kickJobs();
+  };
 
   // Event subscriptions (Observer)
   events.on(EVENTS.PRODUCT_CHANGED, ({ storeId }) => cache.invalidate(cacheNamespaces.store(storeId)));
@@ -111,9 +139,22 @@ export async function createContainer(overrides = {}) {
   events.on(EVENTS.SETTINGS_CHANGED, async ({ userId }) => {
     await Promise.all([cache.invalidate(cacheNamespaces.user(userId)), cache.invalidate(cacheNamespaces.store(userId))]);
   });
+  events.on(EVENTS.USER_REGISTERED, async (evt) => {
+    await accountService.onUserRegistered(evt);
+    kickJobs();
+  });
+  events.on(EVENTS.ACCOUNT_SECURITY_CHANGED, ({ userId }) => cache.invalidate(cacheNamespaces.user(userId)));
+  events.on(EVENTS.ACCOUNT_DELETED, async ({ userId }) => {
+    await Promise.all([
+      cache.invalidate(cacheNamespaces.user(userId)),
+      cache.invalidate(cacheNamespaces.store(userId)),
+      cache.invalidate(cacheNamespaces.customer(userId)),
+    ]);
+  });
 
   return {
     kickJobs,
+    sweepJobs,
     env,
     logger,
     cacheStore,
@@ -127,6 +168,7 @@ export async function createContainer(overrides = {}) {
     purchaseService,
     analyticsService,
     notificationService,
+    accountService,
     jobRepository,
   };
 }

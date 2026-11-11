@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,13 @@ import ExpiryListCard from './ExpiryListCard';
  */
 export default function AlertsTab({ summary }) {
   const router = useRouter();
-  const del = useDeleteProduct(summary.refetch);
+  const [refreshToken, setRefreshToken] = useState(0);
+  const { refetch } = summary;
+  const afterDelete = useCallback(() => {
+    refetch();
+    setRefreshToken((t) => t + 1);
+  }, [refetch]);
+  const del = useDeleteProduct(afterDelete);
   const inv = summary.data;
   const threshold = inv?.thresholdDays ?? EXPIRY.DEFAULT_THRESHOLD_DAYS;
   const state = { loading: summary.loading, error: summary.error, onRetry: summary.refetch };
@@ -45,6 +52,7 @@ export default function AlertsTab({ summary }) {
         description={`Products expiring within ${threshold} days`}
         items={inv?.expiringSoonItems}
         total={inv?.stats?.expiringSoon ?? 0}
+        thresholdDays={threshold}
         emptyTitle="No products expiring soon"
         emptyDescription="All your products are fresh! You'll be notified here when products are about to expire."
         state={state}
@@ -57,6 +65,7 @@ export default function AlertsTab({ summary }) {
         description="Products that have already expired and need attention"
         items={inv?.expiredItems}
         total={inv?.stats?.expired ?? 0}
+        refreshToken={refreshToken}
         emptyTitle="No expired products"
         emptyDescription="You don't have any expired products in your inventory."
         state={state}

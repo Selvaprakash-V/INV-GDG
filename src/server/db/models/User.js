@@ -41,6 +41,14 @@ const UserSchema = new mongoose.Schema(
     },
     notificationSettings: { type: NotificationSettingsSchema, default: () => ({}) },
     budget: { type: BudgetSchema, default: () => ({}) },
+    /**
+     * null = registered but not yet verified. Missing (accounts created before
+     * verification existed) is treated as verified, so turning on
+     * REQUIRE_EMAIL_VERIFICATION never locks out existing users.
+     */
+    emailVerifiedAt: { type: Date },
+    /** Sessions that signed in before this instant are rejected. */
+    passwordChangedAt: { type: Date },
   },
   { timestamps: true }
 );

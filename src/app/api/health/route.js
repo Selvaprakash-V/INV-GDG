@@ -16,6 +16,14 @@ export const GET = withApi(
         success: healthy,
         status: healthy ? 'ok' : 'degraded',
         checks: { db, cache, cacheKind: container.cacheStore.kind },
+        // Setup self-check for operators (kinds and on/off flags only, never values).
+        config: {
+          notifier: container.notifier.kind,
+          cronSecretSet: Boolean(container.env.CRON_SECRET),
+          errorTracking: Boolean(container.env.SENTRY_DSN),
+          requireEmailVerification: container.env.REQUIRE_EMAIL_VERIFICATION,
+          allowAdminSignup: container.env.ALLOW_ADMIN_SIGNUP,
+        },
         uptimeSeconds: Math.round((Date.now() - startedAt) / 1000),
       },
       { status: healthy ? 200 : 503 }

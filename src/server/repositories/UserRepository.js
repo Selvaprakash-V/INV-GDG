@@ -27,6 +27,44 @@ export class UserRepository {
     return this.model.findOne({ email }).select('+password');
   }
 
+  async findByIdWithPassword(id) {
+    return this.model.findById(id).select('+password');
+  }
+
+  async findByEmail(email) {
+    return this.model.findOne({ email }).select('fullName email role emailVerifiedAt').lean().then(normalize);
+  }
+
+  /** Minimal state needed to decide whether a session is still valid. */
+  async findAuthState(id) {
+    return this.model.findById(id).select('role passwordChangedAt').lean().then(normalize);
+  }
+
+  /** Sets a new password (hashed by the model hook) and stamps passwordChangedAt. */
+  async setPassword(id, password, now = new Date()) {
+    const doc = await this.model.findById(id).select('+password');
+    if (!doc) return null;
+    doc.password = password;
+    doc.passwordChangedAt = now;
+    // A working reset link proves the user controls the inbox.
+    if (doc.emailVerifiedAt === null) doc.emailVerifiedAt = now;
+    await doc.save();
+    return doc.toJSON();
+  }
+
+  async markEmailVerified(id, now = new Date()) {
+    return this.model
+      .findByIdAndUpdate(id, { $set: { emailVerifiedAt: now } }, { new: true })
+      .select('email emailVerifiedAt')
+      .lean()
+      .then(normalize);
+  }
+
+  async deleteById(id, { session } = {}) {
+    const res = await this.model.deleteOne({ _id: id }, { session });
+    return res.deletedCount === 1;
+  }
+
   async findById(id) {
     return this.model.findById(id).lean().then(normalize);
   }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
+import SiteFooter from '@/components/SiteFooter';
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -285,17 +286,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white py-6 text-center border-t border-gray-200">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="font-medium text-gray-600"
-        >
-          © 2025 TRACKIT. All Rights Reserved.
-        </motion.p>
-      </footer>
+      <SiteFooter />
     </div>
   );
 

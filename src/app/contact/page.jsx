@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { api } from '@/lib/api-client';
+import SiteFooter from '@/components/SiteFooter';
 
 const SUCCESS_BANNER_MS = 5000;
 
@@ -244,17 +245,7 @@ export default function ContactPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white py-6 text-center border-t border-gray-200">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="font-medium text-gray-600"
-        >
-          © 2025 TRACKIT. All Rights Reserved.
-        </motion.p>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -28,6 +28,8 @@ export const INVENTORY_PAGE_SIZE = PAGINATION.DEFAULT_LIMIT;
 
 /** Upper bound the API allows per request; used for month-wide calendar fetches. */
 export const CALENDAR_FETCH_LIMIT = PAGINATION.MAX_LIMIT;
+/** Safety cap on pages followed per calendar month (10 x 100 = 1,000 rows per list). */
+export const CALENDAR_MAX_PAGES = 10;
 
 export const PRODUCT_PICKER_LIMIT = 10;
 

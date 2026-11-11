@@ -133,7 +133,7 @@ export default function EnhancedCalendar() {
         {cal.loading && <p className="mt-3 text-sm text-gray-500" role="status">Loading {format(cal.month, 'MMMM')}…</p>}
         {cal.truncated && (
           <p className="mt-3 text-sm text-amber-700">
-            This month has more entries than can be shown at once; only the first page of products and sales is displayed.
+            This month has more than 1,000 products or sales; only the first 1,000 of each are shown. Use the Inventory tab filters to see the rest.
           </p>
         )}
       </CardContent>

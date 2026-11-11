@@ -188,7 +188,8 @@ export class CustomerSpendingStrategy {
     const [m, w, byStore] = await Promise.all([
       this.purchases.customerSpendingSeries(user.id, monthly.since, monthly.bucketExpr),
       this.purchases.customerSpendingSeries(user.id, weekly.since, weekly.bucketExpr),
-      this.purchases.customerSpendingByStore(user.id, monthly.since),
+      // All-time per store (was the 6-month chart window, so totals undercounted long-time customers).
+      this.purchases.customerSpendingByStore(user.id),
     ]);
     const monthlySeries = fillSeries(monthly.labels, m, { amount: 0, itemCount: 0 });
     const weeklySeries = fillSeries(weekly.labels, w, { amount: 0, itemCount: 0 });

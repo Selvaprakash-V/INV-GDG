@@ -4,12 +4,14 @@ import { motion } from 'framer-motion';
 import { CalendarClock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { EXPIRY } from '@/shared/constants';
+import { formatMoney } from '@/shared/format';
 import { daysLeftLabel, formatDate } from '../format';
 
 /** A purchased item that expires soon. Items within EXPIRY.SOON_DAYS get the red badge. */
 export default function ExpiryItemRow({ item, detailed = false }) {
   const urgent = item.daysUntilExpiry <= EXPIRY.SOON_DAYS;
-  const store = item.storeName ?? 'Unknown store';
+  const store = item.storeName ?? 'Closed store';
+  const hasValue = typeof item.value === 'number';
   return (
     <motion.li whileHover={{ scale: 1.01 }} className="p-5 flex justify-between items-center gap-4">
       <div>
@@ -27,7 +29,12 @@ export default function ExpiryItemRow({ item, detailed = false }) {
           <CalendarClock className="h-4 w-4" aria-hidden="true" />
           {daysLeftLabel(item.daysUntilExpiry)}
         </Badge>
-        {detailed && <div className="text-lg font-medium">x{item.quantity}</div>}
+        {detailed && (
+          <div className="text-right">
+            <div className="text-lg font-medium">x{item.quantity}</div>
+            {hasValue && <div className="text-sm text-gray-600">{formatMoney(item.value)}</div>}
+          </div>
+        )}
       </div>
     </motion.li>
   );

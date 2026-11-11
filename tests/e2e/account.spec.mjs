@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { PASSWORD, emailLink, login, logout, uniqueEmail } from './helpers.mjs';
+import { emailLink, expect, login, logout, open, PASSWORD, test, uniqueEmail } from './helpers.mjs';
 
 const NEW_PASSWORD = 'Brand1NewPass';
 
@@ -7,7 +6,7 @@ test('customer signs up, confirms email, resets password and deletes the account
   const email = uniqueEmail('cust');
 
   // Sign up through the real form
-  await page.goto('/customersignup');
+  await open(page, '/customersignup');
   await page.getByLabel('Full Name').fill('Asha Customer');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
@@ -18,7 +17,7 @@ test('customer signs up, confirms email, resets password and deletes the account
   await expect(page.getByText('We sent a confirmation link')).toBeVisible();
 
   // Confirm the email from the "sent" message
-  await page.goto(await emailLink(email, /Confirm your email/));
+  await open(page, await emailLink(email, /Confirm your email/));
   await expect(page.getByText('Your email is confirmed')).toBeVisible();
   await expect(page).toHaveURL(/\/verify-email$/); // token stripped from the address bar
 
@@ -29,13 +28,15 @@ test('customer signs up, confirms email, resets password and deletes the account
 
   // Forgot password -> email link -> new password
   await logout(page);
-  await page.goto('/login');
+  await open(page, '/login');
   await page.getByRole('link', { name: 'Forgot password?' }).click();
+  await page.waitForURL(/\/forgot-password/);
+  await page.waitForLoadState('networkidle');
   await page.getByLabel('Email').fill(email);
   await page.getByRole('button', { name: 'Send reset link' }).click();
   await expect(page.getByText(/a reset link is on its way/)).toBeVisible();
 
-  await page.goto(await emailLink(email, /Reset your TrackIt password/));
+  await open(page, await emailLink(email, /Reset your TrackIt password/));
   await page.getByLabel('New password', { exact: true }).fill(NEW_PASSWORD);
   await page.getByLabel('Confirm new password').fill(NEW_PASSWORD);
   await page.getByRole('button', { name: 'Set new password' }).click();
@@ -48,7 +49,7 @@ test('customer signs up, confirms email, resets password and deletes the account
   await expect(page).toHaveURL(/\/customer\/dashboard/);
 
   // Account page: email confirmed, data export downloads valid JSON
-  await page.goto('/account');
+  await open(page, '/account');
   await expect(page.getByText('Email confirmed')).toBeVisible();
   const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'Download my data' }).click()]);
   const exported = JSON.parse(await (await download.createReadStream()).toArray().then((c) => Buffer.concat(c).toString('utf8')));
@@ -70,7 +71,7 @@ test('customer signs up, confirms email, resets password and deletes the account
 
 test('protected pages redirect anonymous visitors to sign in', async ({ page }) => {
   for (const path of ['/admin/dashboard', '/customer/dashboard', '/account']) {
-    await page.goto(path);
+    await open(page, path);
     await expect(page).toHaveURL(/\/login/);
   }
 });

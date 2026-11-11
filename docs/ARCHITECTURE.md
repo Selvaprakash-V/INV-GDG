@@ -223,7 +223,7 @@ Remaining known limits: offset pagination beyond ~10k products per store; memory
 | `next build` | passes (41 routes) |
 | Unit + integration tests | 80 passing (14 new for account lifecycle and expired-sale guard) |
 | Browser tests (Playwright, Chromium) | 14 passing: sign-up → confirm email → reset password → export → delete; admin adds product → records sale → customer sees it; expired sale refused; protected routes redirect |
-| Accessibility (axe, WCAG 2.1 A/AA) | 0 serious/critical violations on 18 screens incl. dashboards with data (fixed: low-contrast orange text, unlabeled chart slices). The third-party Jotform widget is excluded and has one critical issue (unlabeled voice button) |
+| Accessibility (axe, WCAG 2.1 A/AA) | 0 serious/critical violations on 18 screens incl. dashboards with data (fixed: low-contrast orange text, unlabeled and empty chart slices). The third-party Jotform widget is blocked in tests (it is not our markup and has one critical issue: an unlabeled voice button) |
 | API smoke suite | 48/48 |
 
 Load test, same laptop, in-memory-server MongoDB 8.2 replica set (not identical to the earlier run's local mongod, so compare loosely):

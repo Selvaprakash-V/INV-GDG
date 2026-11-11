@@ -116,6 +116,10 @@ export function SalesTrendChart({ data, loading, error, onRetry, period, onPerio
 
 export function StockLevelDistributionChart({ data, loading, error, onRetry }) {
   const series = (data ?? []).map((d, i) => ({ ...d, color: STOCK_LEVEL_COLORS[i % STOCK_LEVEL_COLORS.length] }));
+  // Only non-empty levels become slices (an empty slice still renders an unlabeled <text>);
+  // the legend lists every level so the scale stays readable.
+  const slices = series.filter((d) => d.value > 0);
+  const legend = series.map((d) => ({ id: d.name, value: d.name, type: 'circle', color: d.color }));
   return (
     <ChartCard
       title="Stock Level Distribution"
@@ -130,24 +134,23 @@ export function StockLevelDistributionChart({ data, loading, error, onRetry }) {
     >
       <PieChart>
         <Pie
-          data={series}
+          data={slices}
           cx="50%"
           cy="50%"
           innerRadius={60}
           outerRadius={100}
           paddingAngle={2}
           dataKey="value"
-          // Empty categories stay in the legend but get no slice label ("0%" clutter).
-          label={({ percent }) => (percent > 0 ? `${(percent * 100).toFixed(0)}%` : null)}
+          label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
           labelLine={false}
         >
-          {series.map((entry) => (
+          {slices.map((entry) => (
             // Each slice is an SVG image to assistive tech; give it a name (axe: svg-img-alt).
             <Cell key={entry.name} fill={entry.color} aria-label={`${entry.name}: ${entry.value} products`} />
           ))}
         </Pie>
         <Tooltip formatter={(value) => [`${value} products`, 'Count']} contentStyle={TOOLTIP_STYLE} />
-        <Legend verticalAlign="bottom" height={36} />
+        <Legend verticalAlign="bottom" height={36} payload={legend} />
       </PieChart>
     </ChartCard>
   );

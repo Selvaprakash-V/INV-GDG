@@ -1,6 +1,20 @@
 import { readFileSync } from 'node:fs';
-import { expect } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+
+/**
+ * Tests never depend on third-party services: the embedded Jotform assistant (and the
+ * analytics it pulls in) is blocked, so its overlay and network traffic cannot make
+ * runs flaky or slow. Our own pages render without it.
+ */
+const THIRD_PARTY = /jotform\.com|jotfor\.ms|newrelic\.com|nr-data\.net/;
+export const test = base.extend({
+  page: async ({ page }, provide) => {
+    await page.route(THIRD_PARTY, (route) => route.abort());
+    await provide(page);
+  },
+});
+export { expect };
 
 const LOG_FILE = process.env.E2E_SERVER_LOG || 'test-results/e2e-server.log';
 export const PASSWORD = 'Passw0rdE2e';
@@ -49,8 +63,17 @@ export async function registerViaApi(request, { role, fullName, email, shopName 
   expect(res.status(), await res.text()).toBe(201);
 }
 
+/**
+ * Navigate and wait until the client bundle has loaded. Typing into a form before React
+ * hydrates it lets the browser submit it natively (seen on slower CI machines).
+ */
+export async function open(page, path) {
+  await page.goto(path);
+  await page.waitForLoadState('networkidle');
+}
+
 export async function login(page, email, password = PASSWORD) {
-  await page.goto('/login');
+  await open(page, '/login');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Login' }).click();

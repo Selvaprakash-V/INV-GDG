@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { PASSWORD, audit, login, logout, registerViaApi, uniqueEmail } from './helpers.mjs';
+import { audit, expect, login, logout, open, PASSWORD, registerViaApi, test, uniqueEmail } from './helpers.mjs';
 
 test('store admin adds a product, sells it, and the customer sees the purchase', async ({ page, request }, testInfo) => {
   const adminEmail = uniqueEmail('admin');
@@ -7,7 +6,7 @@ test('store admin adds a product, sells it, and the customer sees the purchase',
   const product = `E2E Milk ${Date.now().toString(36)}`;
 
   // Admin signs up through the real form
-  await page.goto('/administratorsignup');
+  await open(page, '/administratorsignup');
   await page.getByLabel('Shop Name').fill('E2E Mart');
   await page.getByLabel('Full Name').fill('Ravi Admin');
   await page.getByLabel('Email').fill(adminEmail);
@@ -21,7 +20,7 @@ test('store admin adds a product, sells it, and the customer sees the purchase',
   await expect(page).toHaveURL(/\/admin\/dashboard/);
 
   // Add a product through the form (including the calendar date picker)
-  await page.goto('/admin/add-product');
+  await open(page, '/admin/add-product');
   await page.getByLabel('Product Name').fill(product);
   await page.getByLabel('Category').click();
   await page.getByRole('option', { name: 'Dairy' }).click();
@@ -36,7 +35,7 @@ test('store admin adds a product, sells it, and the customer sees the purchase',
   await expect(page.getByText(product).first()).toBeVisible();
 
   // Record a sale of 2 units
-  await page.goto('/admin/record-sale');
+  await open(page, '/admin/record-sale');
   await page.getByLabel('Customer email').fill(customerEmail);
   await page.getByLabel('Add products').fill(product);
   await page.getByRole('button', { name: `Add ${product} to sale` }).click();
@@ -45,7 +44,7 @@ test('store admin adds a product, sells it, and the customer sees the purchase',
   await page.getByRole('button', { name: 'Record sale' }).click();
   await expect(page.getByText('Sale recorded')).toBeVisible();
   await audit(page, testInfo, 'sale-receipt');
-  await page.goto('/admin/dashboard');
+  await open(page, '/admin/dashboard');
   await expect(page.getByText(product).first()).toBeVisible();
   await audit(page, testInfo, 'admin-dashboard-with-data');
 

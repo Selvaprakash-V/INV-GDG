@@ -33,6 +33,23 @@ function write(level, msg, fields, bindings) {
     ...redact(fields || {}),
   });
   (level === 'error' ? console.error : level === 'warn' ? console.warn : console.log)(line);
+  if (level === 'error') reportError(msg, fields, bindings);
+}
+
+/**
+ * Forwards error-level logs to the error tracker installed by src/instrumentation-node.js
+ * (Sentry, when SENTRY_DSN is set). Uses globalThis because instrumentation and route
+ * bundles do not share module instances. Never throws.
+ */
+function reportError(msg, fields, bindings) {
+  const reporter = globalThis.__trackitErrorReporter;
+  if (typeof reporter !== 'function') return;
+  try {
+    const err = fields?.err instanceof Error ? fields.err : new Error(msg);
+    reporter(err, { msg, ...redact(bindings), ...redact({ ...(fields || {}), err: undefined }) });
+  } catch {
+    /* reporting must never break the request */
+  }
 }
 
 export function createLogger(bindings = {}) {

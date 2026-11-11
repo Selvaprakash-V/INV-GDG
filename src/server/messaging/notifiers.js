@@ -9,8 +9,13 @@ export class ConsoleNotifier {
     this.kind = 'console';
   }
 
+  /**
+   * No email provider configured: the log IS the outbox (development, tests, or a pilot
+   * before Resend is set up). Full text is logged so reset/confirmation links are usable.
+   * Configure NOTIFIER=resend in production so links are not readable in logs.
+   */
   async send({ to, subject, text }) {
-    this.logger.info('notification (console)', { to, subject, preview: text?.slice(0, 200) });
+    this.logger.info('notification (console)', { to, subject, body: text });
   }
 }
 

@@ -35,10 +35,13 @@ docker compose up --build         # http://localhost:8080
 | `npm run lint` | ESLint (Next.js core-web-vitals rules) |
 | `npm test` | Unit + integration tests (spins up an in-memory MongoDB replica set) |
 | `npm run test:coverage` | Tests with coverage for `src/server` and `src/shared` |
+| `npm run build && npm run test:e2e` | Browser tests (Playwright) + axe accessibility checks against the production build, on an isolated in-memory database. First time: `npx playwright install chromium` |
 | `npm run test:smoke` | End-to-end regression suite against a running server (`BASE_URL`, optional `CRON_SECRET`) |
 | `npm run load-test` | Latency percentiles for hot endpoints (`BASE_URL`, `CONCURRENCY`, `REQUESTS`, `SEED`) |
 
-Tip (Windows/offline): set `MONGOMS_SYSTEM_BINARY` to your local `mongod.exe` so tests don't download MongoDB.
+Tip (Windows/offline): set `MONGOMS_SYSTEM_BINARY` to your local `mongod.exe` so tests don't download MongoDB. On Windows run Vitest from PowerShell or cmd: Git Bash's lowercase `/d/` drive path makes Vitest load twice ("Cannot read properties of undefined (reading 'config')").
+
+Going live? Follow the checklist at the top of [docs/RUNBOOK.md](docs/RUNBOOK.md).
 
 ## Project layout
 
@@ -59,7 +62,7 @@ src/
     messaging/         EventBus (observer), JobQueue (durable, retries), notifiers
     container.js       composition root (dependency injection)
   middleware.js        role-based route protection
-tests/                 unit + integration (Vitest, mongodb-memory-server)
+tests/                 unit + integration (Vitest, mongodb-memory-server); tests/e2e = Playwright
 scripts/               smoke + load tests
 deploy/                nginx load balancer, scheduler
 ```

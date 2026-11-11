@@ -18,6 +18,9 @@ This document walks the system through the 12-step HLD process, then maps the lo
 | F7 | Admins receive daily expiry digests and low-stock alerts by email; thresholds configurable | `NotificationService`, job queue, `/api/me/settings` |
 | F8 | Customers see purchase history, spending trends per week/month and per store, items about to expire, and a saved budget | `analytics: spending, expiry`, `/api/purchases` |
 | F9 | Signed-in users can use the embedded assistant (Jotform agent) | `ChatbotScript` |
+| F10 | Users recover access (forgot/reset password), confirm their email, and change their password | `AccountService`, `/forgot-password`, `/reset-password`, `/verify-email`, `/account` |
+| F11 | Users download all their data and delete their account; privacy policy and terms are published | `GET /api/me/export`, `DELETE /api/me`, `/privacy`, `/terms` |
+| F12 | Expired products can never be sold, whatever the client sends | `ProductRepository.decrementStock` (`expiryDate > now`) |
 
 ### Non-functional targets (pilot)
 | Quality | Target | Mechanism |
@@ -27,7 +30,7 @@ This document walks the system through the 12-step HLD process, then maps the lo
 | Availability | 99.5% monthly for the pilot; graceful degradation | stateless replicas behind LB, health probes, fail-open cache |
 | Reliability | No lost or double stock updates; alerts eventually delivered | transactions, conditional updates, durable queue with retries |
 | Maintainability | Layered, tested, linted, documented; CI gate | this doc, ADRs, Vitest, ESLint, GitHub Actions |
-| Usability | Real data everywhere, clear errors, keyboard/screen-reader friendly controls | feature hooks, inline errors, aria labels |
+| Usability | Real data everywhere, clear errors, keyboard/screen-reader friendly controls; WCAG 2.1 AA automated checks | feature hooks, inline errors, aria labels, axe in CI |
 
 ## Step 2 — Estimate scale
 
@@ -103,7 +106,8 @@ App instances hold no session state (JWT cookies), no in-memory queues that matt
 ## Step 8 — Add messaging
 
 - **In-process events** (`EventBus`, observer) decouple services from side effects (cache invalidation, alert enqueueing).
-- **Durable job queue** in MongoDB for anything slow or failure-prone (emails): atomic claim, lock expiry for crash recovery, exponential backoff capped at 1 h, dead-letter, idempotent `dedupeKey`, TTL cleanup. Trigger: `after()` right after the response plus a 1-minute scheduler tick. See ADR 0002 for the broker trade-off.
+- **Durable job queue** in MongoDB for anything slow or failure-prone (emails): atomic claim, lock expiry for crash recovery, exponential backoff capped at 1 h, dead-letter, idempotent `dedupeKey`, TTL cleanup. Trigger: `after()` right after the response, an opportunistic sweep from API traffic (at most once a minute per instance), plus the platform scheduler (Vercel Cron daily on Hobby, Cloud Scheduler every minute on Cloud Run).
+- **Account emails** (reset, confirmation) are jobs that carry only the `userId`; the handler issues the single-use token at send time, so no raw token is ever persisted. See ADR 0002 for the broker trade-off.
 
 ## Step 9 — Handle failures
 
@@ -118,11 +122,16 @@ App instances hold no session state (JWT cookies), no in-memory queues that matt
 | Instance crash mid-job | job lock expires; another instance re-claims it (at-least-once; handlers idempotent) |
 | Event subscriber throws | isolated and logged; the request still succeeds |
 | Bad input | 400 with field details; never a 500 with stack/regex/cast messages |
+| No email provider configured | console notifier writes messages to the log (operator can relay); `/api/health` shows `config.notifier` so it is caught at go-live |
+| Unhandled server error | logged with request id and, if `SENTRY_DSN` is set, reported to Sentry (PII off) |
 
 ## Step 10 — Security
 
 - **Secrets:** env only, validated at startup; no fallbacks (the old hardcoded Atlas URI and NextAuth secret are gone — rotate the leaked password).
 - **AuthN:** bcrypt (12 rounds), generic login errors, JWT sessions (24 h), logout.
+- **Account recovery:** reset/confirmation tokens are 256-bit random, stored as SHA-256 hashes with TTL indexes, single-use, newest-only, 30 min / 48 h lifetimes; forgot-password and resend never reveal whether an account exists; per-IP and per-address limits stop mailbox flooding; the token is stripped from the address bar and pages send no referrer.
+- **Session revocation:** every authenticated API call checks the account still exists and the session's sign-in time (`authAt` claim, which survives JWT refresh unlike `iat`) is after the last password change. Cached per instance for 60 s and invalidated immediately on change; the client signs out on `SESSION_REVOKED`.
+- **Optional email verification:** `REQUIRE_EMAIL_VERIFICATION=true` blocks unconfirmed accounts, revealed only after a correct password.
 - **Brute force:** per-account (5/15 min) and per-IP (30/15 min) login limits; registration and write limits; nginx edge limit. Client IP from `X-Real-IP` / last XFF hop (not spoofable first hop).
 - **AuthZ:** middleware protects `/admin/*` and `/customer/*` server-side; `withApi` enforces roles; repositories scope every query by `storeId`/`customerId` (cross-tenant reads return 404).
 - **Input:** Zod schemas whitelist fields (no mass assignment), bound sizes, coerce types; regex input escaped; operator-style query keys dropped; prices/totals server-computed.
@@ -156,7 +165,9 @@ Remaining known limits: offset pagination beyond ~10k products per store; memory
 | Cache | Memory by default, Redis when scaled | Always Redis | Zero-dependency dev/pilot; Redis required for >1 instance (documented) |
 | Consistency | Strong for stock (primary + txn); eventual (≤60 s) for dashboards | Strong everywhere | Dashboards tolerate staleness; enables replicas + caching |
 | Forecasting | Transparent moving-average heuristic | ML service | Explainable, no training data yet; labelled honestly in the UI |
-| Sessions | Stateless JWT | DB sessions | Horizontal scaling without sticky sessions; trade-off: role changes apply at next login (24 h max) |
+| Sessions | Stateless JWT + cached revocation check | DB sessions / pure JWT | No sticky sessions; deletion and password changes take effect within 60 s everywhere (immediately on the same instance) for one cached lookup per request |
+| Account deletion | Delete person, keep sales unlinked | Hard-delete everything | Stores keep their books; the customer's name and email are gone |
+| Error tracking | Sentry server-side only, opt-in | Browser SDK too | No client bundle or CSP cost; server errors are where the risk is |
 | Pagination | Offset (products) + keyset (purchases) | One style everywhere | Page numbers where data is bounded, stable cursors where it's unbounded |
 | Framework version | Next 15.5 (patched) | Next 16 | Lower-risk upgrade for the pilot; revisit post-pilot |
 
@@ -176,6 +187,7 @@ Remaining known limits: offset pagination beyond ~10k products per store; memory
 | Dependency Injection / Composition Root | `container.js` | wiring in one place; test overrides |
 | Cache-aside + Single-flight | `CacheService.wrap` | read performance without stampedes |
 | Template (registry dispatch) | `AnalyticsService.run` | common flow (validate → cache → execute), strategy-specific step |
+| Iterator (async generator) | `AccountService.exportData` | stream a store's export in constant memory |
 
 ### SOLID
 - **S** — routes (transport), services (use-cases), repositories (persistence), strategies (one report each), UI hooks vs presentational components.
@@ -197,10 +209,35 @@ Remaining known limits: offset pagination beyond ~10k products per store; memory
 | Simplify Conditional Logic | guard clauses in `expiryStatus`, `withApi`; status precedence made explicit |
 | Introduce Parameter Object | `list({ storeId, page, limit, ... })`, analytics `ctx` |
 | Replace Error Code with Exception | services throw typed errors; one mapper produces responses |
+| Extract Class (account lifecycle) | `AccountService` split from `UserService` (sign-up/login/settings vs recovery/export/deletion); `emailTemplates.js` |
+| Extract Component | `SiteFooter` replaces five copy-pasted footers; `LegalPage`; `useApiAll` / `useExpiryPage` hooks |
 | Remove Dead Code | 3 connection modules → 1; duplicate layouts/components, test pages, mock dashboards, unused Prisma schema and 6 unused dependencies deleted |
 | Decompose Conditional / Consolidate Duplicate Fragments | shared `ProductForm` for add/edit, shared signup logic |
 
-## Measured results (2026-11-11)
+## Measured results (2026-11-11, after pilot hardening)
+
+| Check | Result |
+|---|---|
+| `npm audit --omit=dev` | 0 vulnerabilities |
+| `eslint .` | 0 problems |
+| `next build` | passes (41 routes) |
+| Unit + integration tests | 80 passing (14 new for account lifecycle and expired-sale guard) |
+| Browser tests (Playwright, Chromium) | 14 passing: sign-up → confirm email → reset password → export → delete; admin adds product → records sale → customer sees it; expired sale refused; protected routes redirect |
+| Accessibility (axe, WCAG 2.1 A/AA) | 0 serious/critical violations on 18 screens incl. dashboards with data (fixed: low-contrast orange text, unlabeled chart slices). The third-party Jotform widget is excluded and has one critical issue (unlabeled voice button) |
+| API smoke suite | 48/48 |
+
+Load test, same laptop, in-memory-server MongoDB 8.2 replica set (not identical to the earlier run's local mongod, so compare loosely):
+
+| Endpoint | 1 client p50 / p95 | 50 clients rps · p95 |
+|---|---|---|
+| `GET /api/products` | 6 / 9 ms | 231 · 294 ms |
+| `GET /api/analytics?type=inventory` | 6 / 8 ms | 315 · 197 ms |
+| `GET /api/analytics?type=predictive` | 6 / 8 ms | 352 · 186 ms |
+| `GET /api/health?probe=live` (framework floor) | 5 / 6 ms | 314 · 207 ms |
+
+The per-request session check added no measurable latency (it is a cache hit after the first request per user per minute).
+
+## Measured results (2026-11-11, first refactor)
 
 Environment: one Node process (standalone production build) on a Windows 11 laptop, local single-node MongoDB 8.2 replica set, in-memory cache, load generator on the same machine.
 

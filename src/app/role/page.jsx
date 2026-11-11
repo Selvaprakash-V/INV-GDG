@@ -39,7 +39,7 @@ export default function RoleSelection() {
           Select Your <span className="text-purple-600">Role</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-          Choose whether you're a supermarket administrator or a customer
+          Choose whether you&apos;re a supermarket administrator or a customer
         </p>
       </motion.div>
 

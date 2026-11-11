@@ -15,7 +15,7 @@ const TOOLTIP_STYLE = { backgroundColor: 'white', borderRadius: '8px', boxShadow
 const AXIS_PROPS = { stroke: '#888', fontSize: 12 };
 
 /** Card shell shared by every dashboard chart: header + loading/error/empty handling. */
-function ChartCard({ title, description, Icon, headerClass, titleClass, iconClass, action, state, emptyText, children }) {
+function ChartCard({ title, description, Icon, headerClass, titleClass, iconClass, action, state, emptyText, children, srSummary }) {
   return (
     <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className={`border-b ${headerClass}`}>
@@ -37,6 +37,7 @@ function ChartCard({ title, description, Icon, headerClass, titleClass, iconClas
           errorTitle="Could not load chart"
           empty={<EmptyState title="No data yet" description={emptyText} tone="neutral" icon={Icon} className="h-full" />}
         >
+          {srSummary && <p className="sr-only">{srSummary}</p>}
           <ResponsiveContainer width="100%" height="100%">
             {children}
           </ResponsiveContainer>
@@ -125,6 +126,7 @@ export function StockLevelDistributionChart({ data, loading, error, onRetry }) {
       iconClass="text-purple-600"
       state={chartState({ data, loading, error, onRetry }, (d) => d.every((s) => !s.value))}
       emptyText="Add products to see how stock is distributed."
+      srSummary={series.map((d) => `${d.name}: ${d.value} products`).join('; ')}
     >
       <PieChart>
         <Pie
@@ -135,11 +137,13 @@ export function StockLevelDistributionChart({ data, loading, error, onRetry }) {
           outerRadius={100}
           paddingAngle={2}
           dataKey="value"
-          label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+          // Empty categories stay in the legend but get no slice label ("0%" clutter).
+          label={({ percent }) => (percent > 0 ? `${(percent * 100).toFixed(0)}%` : null)}
           labelLine={false}
         >
           {series.map((entry) => (
-            <Cell key={entry.name} fill={entry.color} />
+            // Each slice is an SVG image to assistive tech; give it a name (axe: svg-img-alt).
+            <Cell key={entry.name} fill={entry.color} aria-label={`${entry.name}: ${entry.value} products`} />
           ))}
         </Pie>
         <Tooltip formatter={(value) => [`${value} products`, 'Count']} contentStyle={TOOLTIP_STYLE} />

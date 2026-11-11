@@ -1,13 +1,7 @@
-import ClientAdminDashboard from './client-page';
-import SessionWrapper from '@/components/SessionWrapper';
-import AuthenticatedLayout from '@/app/AuthenticatedLayout';
+import AdminDashboard from './client-page';
 
-export default function AdminDashboard() {
-  return (
-    <SessionWrapper>
-      <AuthenticatedLayout>
-        <ClientAdminDashboard />
-      </AuthenticatedLayout>
-    </SessionWrapper>
-  );
+export const metadata = { title: 'Admin dashboard | TrackIt' };
+
+export default function Page() {
+  return <AdminDashboard />;
 }

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { InsufficientStockError, NotFoundError, ServiceUnavailableError } from '../core/errors';
+import { InsufficientStockError, NotFoundError, ProductExpiredError, ServiceUnavailableError } from '../core/errors';
+import { isExpired } from '@/shared/expiry';
 import { decodeCursor, encodeCursor } from '../core/pagination';
 import { EVENTS } from '../config/constants';
 import { ROLES } from '@/shared/constants';
@@ -33,13 +34,15 @@ export class PurchaseService {
 
     let purchase;
     try {
+      const saleTime = this.now();
       purchase = await this.runInTransaction(async (session) => {
         const items = [];
         for (const { productId, quantity } of lines) {
-          const updated = await this.products.decrementStock(productId, admin.id, quantity, { session });
+          const updated = await this.products.decrementStock(productId, admin.id, quantity, { session, now: saleTime });
           if (!updated) {
             const [existing] = await this.products.findManyForStore([productId], admin.id, { session });
             if (!existing) throw new NotFoundError(`Product ${productId}`);
+            if (isExpired(existing.expiryDate, saleTime)) throw new ProductExpiredError(existing.name);
             throw new InsufficientStockError(existing.name);
           }
           items.push({
@@ -59,8 +62,8 @@ export class PurchaseService {
             items: items.map(({ remainingStock: _r, ...i }) => i),
             totalAmount,
             paymentMethod: data.paymentMethod,
-            receiptNumber: `REC-${this.now().getTime()}-${randomUUID().slice(0, 8)}`,
-            purchaseDate: this.now(),
+            receiptNumber: `REC-${saleTime.getTime()}-${randomUUID().slice(0, 8)}`,
+            purchaseDate: saleTime,
           },
           { session }
         );

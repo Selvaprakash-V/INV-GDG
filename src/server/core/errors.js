@@ -29,8 +29,15 @@ export class ValidationError extends AppError {
 }
 
 export class UnauthorizedError extends AppError {
-  constructor(message = 'Authentication required') {
-    super(message, { status: 401, code: 'UNAUTHORIZED' });
+  constructor(message = 'Authentication required', code = 'UNAUTHORIZED') {
+    super(message, { status: 401, code });
+  }
+}
+
+/** Reset / verification link that is unknown, already used or expired (indistinguishable by design). */
+export class InvalidTokenError extends AppError {
+  constructor() {
+    super('This link is invalid or has expired. Request a new one.', { status: 400, code: 'INVALID_TOKEN' });
   }
 }
 
@@ -55,6 +62,13 @@ export class ConflictError extends AppError {
 export class InsufficientStockError extends ConflictError {
   constructor(productName) {
     super(`Not enough stock for ${productName}`, 'INSUFFICIENT_STOCK');
+  }
+}
+
+/** Expired goods must never be sold, whatever the client sends. */
+export class ProductExpiredError extends ConflictError {
+  constructor(productName) {
+    super(`${productName} has expired and cannot be sold`, 'PRODUCT_EXPIRED');
   }
 }
 

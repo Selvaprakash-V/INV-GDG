@@ -15,6 +15,8 @@ export function describeSaleError(err) {
   switch (err?.code) {
     case 'INSUFFICIENT_STOCK':
       return `${err.message}. Lower the quantity or remove the item — stock may have changed since it was added.`;
+    case 'PRODUCT_EXPIRED':
+      return `${err.message}. Remove it from the sale and take it off the shelf.`;
     case 'NOT_FOUND':
       return /^customer/i.test(err.message)
         ? 'No customer account matches that email. Ask the customer to sign up first, or check the spelling.'

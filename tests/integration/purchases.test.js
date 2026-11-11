@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { startDb, stopDb, clearDb, makeContainer, seedUsers, productInput, fakeNotifier } from './helpers';
+import { startDb, stopDb, clearDb, makeContainer, seedUsers, productInput, fakeNotifier, inDays } from './helpers';
 import { Product } from '@/server/db/models/Product';
 import { Purchase } from '@/server/db/models/Purchase';
-import { InsufficientStockError, NotFoundError, ValidationError } from '@/server/core/errors';
+import { InsufficientStockError, NotFoundError, ProductExpiredError, ValidationError } from '@/server/core/errors';
 import { JOB_TYPES } from '@/server/config/constants';
 import { Job } from '@/server/db/models/Job';
 
@@ -54,6 +54,17 @@ describe('PurchaseService.record', () => {
     expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(3);
     expect(await stockOf(p.id)).toBe(0);
     expect(await Purchase.countDocuments()).toBe(3);
+  });
+
+  it('refuses to sell expired products, even via the API (was: blocked only in the UI)', async () => {
+    const fresh = await c.productService.create(u.adminA, productInput({ stock: 5 }));
+    const expired = await c.productService.create(u.adminA, productInput({ stock: 5, name: 'Old Yogurt', expiryDate: inDays(-1).toISOString() }));
+    const input = { customerEmail: u.customer.email, items: [{ productId: fresh.id, quantity: 1 }, { productId: expired.id, quantity: 1 }] };
+    const err = await c.purchaseService.record(u.adminA, input).catch((e) => e);
+    expect(err).toBeInstanceOf(ProductExpiredError);
+    expect(err.code).toBe('PRODUCT_EXPIRED');
+    expect(await stockOf(fresh.id)).toBe(5); // whole sale rolled back
+    expect(await stockOf(expired.id)).toBe(5);
   });
 
   it("cannot sell another store's product", async () => {
@@ -111,8 +122,10 @@ describe('async low-stock alerts', () => {
     await c.purchaseService.record(u.adminA, sale(p.id, 2));
     expect(await Job.countDocuments({ type: JOB_TYPES.LOW_STOCK_ALERT })).toBe(1);
     const summary = await c.jobQueue.drain();
-    expect(summary.succeeded).toBe(1);
-    expect(notifier.sent[0].to).toBe(u.adminA.email);
-    expect(notifier.sent[0].text).toContain('Eggs: 14 left');
+    expect(summary.failed + summary.dead).toBe(0);
+    // (sign-up verification emails are in the queue too)
+    const alert = notifier.sent.find((m) => m.subject.startsWith('[TrackIt] Low stock'));
+    expect(alert.to).toBe(u.adminA.email);
+    expect(alert.text).toContain('Eggs: 14 left');
   });
 });

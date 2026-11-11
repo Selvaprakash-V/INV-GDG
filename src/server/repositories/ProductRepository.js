@@ -83,19 +83,31 @@ export class ProductRepository {
       });
   }
 
+  /** Store closure (account deletion): hide every product in one write. */
+  async deactivateAllForStore(storeId, { session } = {}) {
+    const res = await this.model.updateMany({ storeId, isActive: true }, { $set: { isActive: false } }, { session });
+    return res.modifiedCount;
+  }
+
+  /** Streams every product of a store (data export) without loading them all into memory. */
+  cursorForStore(storeId) {
+    return this.model.find({ storeId }).sort({ _id: 1 }).lean().cursor({ transform: normalize });
+  }
+
   async softDelete(id, storeId) {
     const res = await this.model.updateOne({ _id: id, storeId, isActive: true }, { $set: { isActive: false } });
     return res.modifiedCount === 1;
   }
 
   /**
-   * Atomic conditional decrement: succeeds only if enough stock remains.
+   * Atomic conditional decrement: succeeds only if the product is active, unexpired
+   * (expiryDate > now, same rule as shared isExpired) and has enough stock.
    * Fixes the old check-then-act race that oversold (stock went to -3).
    */
-  async decrementStock(id, storeId, quantity, { session } = {}) {
+  async decrementStock(id, storeId, quantity, { session, now = new Date() } = {}) {
     return this.model
       .findOneAndUpdate(
-        { _id: id, storeId, isActive: true, stock: { $gte: quantity } },
+        { _id: id, storeId, isActive: true, stock: { $gte: quantity }, expiryDate: { $gt: now } },
         { $inc: { stock: -quantity } },
         { new: true, session }
       )

@@ -9,6 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
+import { api } from '@/lib/api-client';
+
+const SUCCESS_BANNER_MS = 5000;
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -17,6 +20,8 @@ export default function ContactPage() {
     message: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,15 +31,21 @@ export default function ContactPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log('Form submitted:', formData);
-    setIsSubmitted(true);
-    setFormData({ name: '', email: '', message: '' });
-    
-    // Reset submission status after 5 seconds
-    setTimeout(() => setIsSubmitted(false), 5000);
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      await api.post('/api/contact', formData);
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', message: '' });
+      setTimeout(() => setIsSubmitted(false), SUCCESS_BANNER_MS);
+    } catch (err) {
+      const fieldErrors = err.details ? Object.values(err.details).join(' ') : '';
+      setSubmitError(fieldErrors || err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -153,7 +164,7 @@ export default function ContactPage() {
               <CardHeader>
                 <CardTitle className="text-2xl text-gray-800">Send Us a Message</CardTitle>
                 <CardDescription className="text-gray-600">
-                  Fill out the form below and we'll get back to you soon
+                  Fill out the form below and we&apos;ll get back to you soon
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -202,11 +213,18 @@ export default function ContactPage() {
                   >
                     <Button
                       type="submit"
+                      disabled={isSubmitting}
                       className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                     >
-                      Send Message
+                      {isSubmitting ? 'Sending…' : 'Send Message'}
                     </Button>
                   </motion.div>
+
+                  {submitError && (
+                    <p role="alert" className="text-sm text-red-600">
+                      {submitError}
+                    </p>
+                  )}
 
                   {isSubmitted && (
                     <motion.div
@@ -215,7 +233,7 @@ export default function ContactPage() {
                       className="flex items-center gap-2 text-green-600 p-3 bg-green-50 rounded-md"
                     >
                       <CheckCircle2 className="h-5 w-5" />
-                      <span>Message sent successfully! We'll reach out to you soon.</span>
+                      <span>Message sent successfully! We&apos;ll reach out to you soon.</span>
                     </motion.div>
                   )}
                 </form>

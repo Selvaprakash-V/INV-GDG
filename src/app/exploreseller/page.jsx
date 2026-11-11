@@ -143,7 +143,7 @@ export default function ExploreSeller() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <Link href="/demo-request">
+            <Link href="/contact">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}

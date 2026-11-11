@@ -1,14 +1,7 @@
-import ClientCustomerDashboard from './client-page';
-import SessionWrapper from '@/components/SessionWrapper';
-import AuthenticatedLayout from '@/app/AuthenticatedLayout';
+import CustomerDashboard from './client-page';
 
-export default function CustomerDashboard() {
-  return (
-    <SessionWrapper>
-      <AuthenticatedLayout>
-        <ClientCustomerDashboard />
-      </AuthenticatedLayout>
-    </SessionWrapper>
-  );
+export const metadata = { title: 'My dashboard | TrackIt' };
 
+export default function Page() {
+  return <CustomerDashboard />;
 }

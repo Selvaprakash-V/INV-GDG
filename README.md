@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TrackIt — supermarket inventory & expiry tracking
 
-## Getting Started
+TrackIt helps store administrators track stock and expiry dates, record sales, get expiry/low-stock alerts and demand forecasts, and lets customers see their purchases, spending and items about to expire.
 
-First, run the development server:
+- **Stack:** Next.js 15 (App Router) · React 19 · MongoDB (Mongoose) · NextAuth (JWT) · Tailwind/Radix UI · optional Redis
+- **Architecture:** layered (routes → services → repositories), DI composition root, event bus + durable job queue. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **API reference:** [docs/API.md](docs/API.md) · **Operations:** [docs/RUNBOOK.md](docs/RUNBOOK.md) · **Decisions:** [docs/adr/](docs/adr/)
+
+## Quick start (local)
+
+Prerequisites: Node 20.9+, MongoDB 7+ running as a **replica set** (sales are recorded in transactions).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm ci
+cp .env.example .env.local        # fill NEXTAUTH_SECRET (openssl rand -base64 32) and CRON_SECRET
+start-mongodb.bat                 # Windows: starts mongod --replSet rs0 and initiates it
+# macOS/Linux: mongod --replSet rs0 --dbpath ./data/db &  then  mongosh --eval "rs.initiate()"
+npm run dev                       # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Register a store administrator at `/administratorsignup` and a customer at `/customersignup`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Production-like stack (load balancer, 2 replicas, Redis, scheduler)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env              # set NEXTAUTH_SECRET and CRON_SECRET
+docker compose up --build         # http://localhost:8080
+```
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command | What it does |
+|---|---|
+| `npm run dev` / `build` / `start` | Next.js dev server / production build / production server |
+| `npm run lint` | ESLint (Next.js core-web-vitals rules) |
+| `npm test` | Unit + integration tests (spins up an in-memory MongoDB replica set) |
+| `npm run test:coverage` | Tests with coverage for `src/server` and `src/shared` |
+| `npm run test:smoke` | End-to-end regression suite against a running server (`BASE_URL`, optional `CRON_SECRET`) |
+| `npm run load-test` | Latency percentiles for hot endpoints (`BASE_URL`, `CONCURRENCY`, `REQUESTS`, `SEED`) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Tip (Windows/offline): set `MONGOMS_SYSTEM_BINARY` to your local `mongod.exe` so tests don't download MongoDB.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project layout
 
-## Deploy on Vercel
+```
+src/
+  app/                 Next.js pages and thin API route handlers
+  features/            UI feature modules (admin, customer, products, auth): hooks + components
+  components/ui/       shadcn/Radix primitives
+  lib/api-client.js    fetch wrapper + useApi hook
+  shared/              constants and expiry logic shared by client and server
+  server/
+    config/            validated env + tunables (no magic numbers)
+    core/              errors, logger (redacting), http decorator, rate limiter, pagination
+    cache/             CacheStore interface (memory / Redis) + cache-aside service
+    db/                connection singleton + Mongoose models
+    repositories/      data access (tenant-scoped, atomic stock updates)
+    services/          business use-cases; analytics strategies
+    messaging/         EventBus (observer), JobQueue (durable, retries), notifiers
+    container.js       composition root (dependency injection)
+  middleware.js        role-based route protection
+tests/                 unit + integration (Vitest, mongodb-memory-server)
+scripts/               smoke + load tests
+deploy/                nginx load balancer, scheduler
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scheduled work
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Call these with `Authorization: Bearer $CRON_SECRET` (Cloud Scheduler, Vercel Cron or the compose `scheduler`):
+
+| Endpoint | Schedule | Purpose |
+|---|---|---|
+| `POST /api/internal/jobs` | every minute | drain the job queue (alerts, retries) |
+| `POST /api/internal/expiry-scan` | daily, morning | enqueue one expiry digest per store (idempotent per day) |
+| `POST /api/internal/db-indexes` | on each deploy | build declared indexes, drop obsolete ones |
+
+## Security notes
+
+- Secrets come only from the environment; the app refuses to start without them.
+- **If you are upgrading from the pre-refactor code:** the old MongoDB Atlas password was committed to git history. Rotate it in Atlas and restrict network access; removing it from the code does not revoke it.

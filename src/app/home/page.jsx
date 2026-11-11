@@ -18,14 +18,6 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const trustedBrands = [
-    { name: 'Walmart', logo: '/brands/walmart.png' },
-    { name: 'Kroger', logo: '/brands/kroger.png' },
-    { name: 'Target', logo: '/brands/target.png' },
-    { name: 'Aldi', logo: '/brands/aldi.png' },
-    { name: 'Lidl', logo: '/brands/lidl.png' },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-violet-100 to-purple-200 text-gray-800 font-sans">
       {/* Header */}

@@ -1,13 +1,7 @@
-import ClientAddProductPage from './client-page';
-import SessionWrapper from '@/components/SessionWrapper';
-import AuthenticatedLayout from '@/app/AuthenticatedLayout';
+import AddProductPage from './client-page';
 
-export default function AddProductPage() {
-  return (
-    <SessionWrapper>
-      <AuthenticatedLayout>
-        <ClientAddProductPage />
-      </AuthenticatedLayout>
-    </SessionWrapper>
-  );
+export const metadata = { title: 'Add product | TrackIt' };
+
+export default function Page() {
+  return <AddProductPage />;
 }

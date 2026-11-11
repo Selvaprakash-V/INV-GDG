@@ -39,6 +39,17 @@ export class PurchaseRepository {
     return { items: rows.slice(0, limit).map(normalize), hasNext };
   }
 
+  /** Streams a store's sales or a customer's purchases (data export), oldest first. */
+  cursorFor({ storeId, customerId }) {
+    const filter = storeId ? { storeId: oid(storeId) } : { customerId: oid(customerId) };
+    return this.model
+      .find(filter)
+      .sort({ purchaseDate: 1, _id: 1 })
+      .populate('storeId', 'shopName')
+      .lean()
+      .cursor({ transform: normalize });
+  }
+
   /** Revenue/units bucketed in the database (bucketExpr from analytics/periods), not in app memory. */
   async salesSeries(storeId, since, bucketExpr) {
     return this.model
@@ -105,10 +116,12 @@ export class PurchaseRepository {
       .read(this.readPreference());
   }
 
+  /** Per-store totals for one customer; all-time unless `since` is given (index: customerId, purchaseDate). */
   async customerSpendingByStore(customerId, since) {
+    const match = { customerId: oid(customerId), ...(since ? { purchaseDate: { $gte: since } } : {}) };
     return this.model
       .aggregate([
-        { $match: { customerId: oid(customerId), purchaseDate: { $gte: since } } },
+        { $match: match },
         {
           $group: {
             _id: '$storeId',
@@ -123,7 +136,7 @@ export class PurchaseRepository {
           $project: {
             _id: 0,
             storeId: { $toString: '$_id' },
-            storeName: { $ifNull: [{ $first: '$store.shopName' }, 'Unknown store'] },
+            storeName: { $ifNull: [{ $first: '$store.shopName' }, 'Closed store'] },
             totalSpent: 1,
             visitCount: 1,
             lastVisit: 1,
@@ -148,9 +161,11 @@ export class PurchaseRepository {
             purchaseId: { $toString: '$_id' },
             productName: '$items.productName',
             quantity: '$items.quantity',
+            price: '$items.price',
+            value: { $round: [{ $multiply: ['$items.price', '$items.quantity'] }, 2] },
             expiryDate: '$items.expiryDate',
             purchaseDate: 1,
-            storeName: { $ifNull: [{ $first: '$store.shopName' }, 'Unknown store'] },
+            storeName: { $ifNull: [{ $first: '$store.shopName' }, 'Closed store'] },
           },
         },
       ])

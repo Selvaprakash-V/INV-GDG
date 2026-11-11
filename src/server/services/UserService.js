@@ -25,8 +25,10 @@ export class UserService {
       email: data.email,
       password: data.password, // hashed once by the model hook
       role: data.role,
+      emailVerifiedAt: null,
       ...(data.role === ROLES.ADMIN ? { shopName: data.shopName } : {}),
     });
+    await this.events.emit(EVENTS.USER_REGISTERED, { userId: user.id, role: user.role });
     return toPublicUser(user);
   }
 
@@ -63,5 +65,7 @@ export function toPublicUser(u) {
     email: u.email,
     role: u.role,
     shopName: u.shopName ?? null,
+    // null = not yet verified; missing = account predates verification (treated as verified)
+    emailVerified: u.emailVerifiedAt !== null,
   };
 }

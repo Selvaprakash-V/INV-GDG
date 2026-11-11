@@ -8,6 +8,7 @@ import { clientIp } from '../core/http';
 export const AUTH_ERRORS = Object.freeze({
   INVALID: 'INVALID_CREDENTIALS',
   RATE_LIMITED: 'RATE_LIMITED',
+  EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
 });
 
 /**
@@ -44,6 +45,10 @@ export const authOptions = {
           c.logger.info('login failed', { email, ip });
           throw new Error(AUTH_ERRORS.INVALID); // same message whether the email exists or not
         }
+        // Only revealed after a correct password, so it cannot be used to probe for accounts.
+        if (c.env.REQUIRE_EMAIL_VERIFICATION && !user.emailVerified) {
+          throw new Error(AUTH_ERRORS.EMAIL_NOT_VERIFIED);
+        }
         await c.rateLimiter.reset('login', email, RATE_LIMITS.LOGIN);
         c.logger.info('login succeeded', { userId: user.id, role: user.role });
         return user;
@@ -56,6 +61,9 @@ export const authOptions = {
         token.id = user.id;
         token.role = user.role;
         token.shopName = user.shopName;
+        // Sign-in time. Survives token refreshes (unlike iat), so sessions older than
+        // the last password change can be rejected (AccountService.assertSessionActive).
+        token.authAt = Date.now();
       }
       return token;
     },

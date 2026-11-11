@@ -20,6 +20,10 @@ const envSchema = z.object({
   REDIS_URL: z.string().url().optional(),
   CRON_SECRET: z.string().min(16).optional(),
   ALLOW_ADMIN_SIGNUP: boolFromString.default(true),
+  /** When true, accounts must confirm their email before they can sign in. Needs a real NOTIFIER. */
+  REQUIRE_EMAIL_VERIFICATION: boolFromString.default(false),
+  /** Optional error tracking (Sentry). Unset = disabled. */
+  SENTRY_DSN: z.string().url().optional(),
   NOTIFIER: z.enum(['console', 'resend']).default('console'),
   RESEND_API_KEY: z.string().optional(),
   NOTIFY_FROM: z.string().default('TrackIt <alerts@trackit.local>'),
@@ -41,6 +45,9 @@ export function getEnv() {
     throw new Error(`Invalid environment configuration: ${issues}`);
   }
   const env = parsed.data;
+  if (env.REQUIRE_EMAIL_VERIFICATION && env.NOTIFIER === 'console') {
+    throw new Error('Invalid environment configuration: REQUIRE_EMAIL_VERIFICATION=true needs NOTIFIER=resend, or nobody could sign up');
+  }
   if (env.NOTIFIER === 'resend' && !env.RESEND_API_KEY) {
     throw new Error('Invalid environment configuration: RESEND_API_KEY is required when NOTIFIER=resend');
   }

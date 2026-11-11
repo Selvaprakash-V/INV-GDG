@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronRight, UserCircle } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -54,7 +55,13 @@ export default function CustomerSidebar({ user, activeTab, onSelect }) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-purple-100">
+      <div className="p-4 border-t border-purple-100 space-y-2">
+        <Button asChild variant="ghost" className="w-full justify-start">
+          <Link href="/account">
+            <UserCircle className="mr-3 h-5 w-5" aria-hidden="true" />
+            Your account
+          </Link>
+        </Button>
         <LogoutButton className="w-full" />
       </div>
     </motion.aside>

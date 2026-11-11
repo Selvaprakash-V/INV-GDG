@@ -68,6 +68,18 @@ export default function SignupForm({ role }) {
 
         {formError && <AuthMessage type="error">{formError}</AuthMessage>}
 
+        <p className="text-xs text-gray-600">
+          By creating an account you agree to our{' '}
+          <Link href="/terms" className="text-purple-700 underline">
+            Terms
+          </Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="text-purple-700 underline">
+            Privacy policy
+          </Link>
+          .
+        </p>
+
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
           <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white" disabled={isSubmitting}>
             {isSubmitting ? 'Creating account...' : 'Sign Up'}

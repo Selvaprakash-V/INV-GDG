@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
-import { Bell, Package, Settings, ShoppingCart } from 'lucide-react';
+import { Bell, Package, Settings, ShoppingCart, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LogoutButton from '@/components/LogoutButton';
 import { HEADER_SCROLL_OFFSET, ROUTES } from '../constants';
@@ -91,6 +91,11 @@ export default function DashboardHeader({ expiringCount = 0, onShowAlerts, onSet
               </Button>
             }
           />
+          <Button asChild variant="ghost" size="sm" className="text-gray-600 hover:text-purple-600">
+            <Link href="/account" aria-label="Your account">
+              <UserCircle className="h-5 w-5" aria-hidden="true" />
+            </Link>
+          </Button>
           <LogoutButton className="hidden sm:inline-flex" />
         </div>
       </div>

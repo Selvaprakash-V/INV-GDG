@@ -42,6 +42,7 @@ export async function apiFetch(path, { method = 'GET', body, params, signal } = 
     /* empty body */
   }
   if (!res.ok || data?.success === false) {
+    if (res.status === 401 && data?.code === 'SESSION_REVOKED') handleRevokedSession();
     throw new ApiError(data?.message || `Request failed (${res.status})`, {
       status: res.status,
       code: data?.code,
@@ -51,12 +52,20 @@ export async function apiFetch(path, { method = 'GET', body, params, signal } = 
   return data;
 }
 
+let signingOut = false;
+/** The account was deleted or its password changed elsewhere: end this session cleanly. */
+function handleRevokedSession() {
+  if (signingOut || typeof window === 'undefined') return;
+  signingOut = true;
+  import('next-auth/react').then(({ signOut }) => signOut({ callbackUrl: '/login?error=SESSION_REVOKED' }));
+}
+
 export const api = {
   get: (path, params, opts) => apiFetch(path, { ...opts, params }),
   post: (path, body) => apiFetch(path, { method: 'POST', body }),
   put: (path, body) => apiFetch(path, { method: 'PUT', body }),
   patch: (path, body) => apiFetch(path, { method: 'PATCH', body }),
-  del: (path) => apiFetch(path, { method: 'DELETE' }),
+  del: (path, body) => apiFetch(path, { method: 'DELETE', body }),
 };
 
 /**
@@ -83,6 +92,51 @@ export function useApi(path, params) {
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, nonce]);
+
+  const refetch = useCallback(() => setNonce((n) => n + 1), []);
+  return { ...state, refetch };
+}
+
+/**
+ * Follows pagination until every row is loaded (or `maxPages` is hit), for views
+ * like the calendar that need the whole range. Handles both offset (`page`/`hasNext`)
+ * and keyset (`nextCursor`) pagination from this API.
+ * @param {string|null} path
+ * @param {object} params  request params (include `limit`, ideally the API maximum)
+ * @param {{ itemsKey: string, maxPages?: number }} options
+ */
+export function useApiAll(path, params, { itemsKey, maxPages = 10 }) {
+  const key = path ? `${path}${toQuery(params)}` : null;
+  const [state, setState] = useState({ items: null, truncated: false, error: null, loading: Boolean(path) });
+  const [nonce, setNonce] = useState(0);
+  const paramsRef = useRef(params);
+  paramsRef.current = params;
+
+  useEffect(() => {
+    if (!key) return undefined;
+    const controller = new AbortController();
+    setState((s) => ({ ...s, loading: true, error: null }));
+    (async () => {
+      const items = [];
+      let next = {};
+      let more = false;
+      for (let i = 0; i < maxPages; i += 1) {
+        const data = await apiFetch(path, { params: { ...paramsRef.current, ...next }, signal: controller.signal });
+        items.push(...(data[itemsKey] ?? []));
+        const p = data.pagination ?? {};
+        more = Boolean(p.hasNext);
+        if (!more) break;
+        next = p.nextCursor ? { cursor: p.nextCursor } : { page: (p.page ?? 1) + 1 };
+      }
+      return { items, truncated: more };
+    })()
+      .then(({ items, truncated }) => setState({ items, truncated, error: null, loading: false }))
+      .catch((error) => {
+        if (error.name !== 'AbortError') setState((s) => ({ ...s, error, loading: false }));
+      });
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, nonce, itemsKey, maxPages]);
 
   const refetch = useCallback(() => setNonce((n) => n + 1), []);
   return { ...state, refetch };

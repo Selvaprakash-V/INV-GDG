@@ -66,7 +66,9 @@ export function describeRegisterError(err) {
 const LOGIN_ERROR_MESSAGES = {
   INVALID_CREDENTIALS: 'Invalid email or password.',
   CredentialsSignin: 'Invalid email or password.',
-  RATE_LIMITED: `Too many attempts. Try again in ${LOGIN_LOCKOUT_MINUTES} minutes.`,
+  RATE_LIMITED: `Too many attempts. Try again in ${LOGIN_LOCKOUT_MINUTES} minutes, or reset your password.`,
+  EMAIL_NOT_VERIFIED: 'Please confirm your email first. Use the link we emailed you, or request a new one below.',
+  SESSION_REVOKED: 'You were signed out because your password changed or your account was removed. Please sign in again.',
 };
 
 /** Readable text for next-auth `result.error` (or the `?error=` query param). */
@@ -74,6 +76,17 @@ export function loginErrorMessage(code) {
   if (!code) return '';
   return LOGIN_ERROR_MESSAGES[code] ?? 'Sign-in failed. Please try again.';
 }
+
+/** Field → message map for reset / change password forms (empty object when valid). */
+export function validateNewPassword({ password, confirmPassword }) {
+  const errors = {};
+  const pwError = passwordError(password);
+  if (pwError) errors.password = pwError;
+  if (password !== confirmPassword) errors.confirmPassword = 'Passwords do not match';
+  return errors;
+}
+
+export const isValidEmail = (value) => EMAIL_PATTERN.test(String(value).trim());
 
 /** Only same-origin relative paths are honoured ("/x", never "//host" or "http://"). */
 export function safeCallbackUrl(value) {

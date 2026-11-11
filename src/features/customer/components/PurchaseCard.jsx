@@ -7,7 +7,7 @@ import { formatCurrency, formatDate } from '../format';
 
 /** One receipt: header (number, date, store, total) and its line items. */
 export default function PurchaseCard({ purchase, showExpiry = false, className = '' }) {
-  const storeName = purchase.store?.shopName ?? 'Unknown store';
+  const storeName = purchase.store?.shopName ?? 'Closed store';
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}

@@ -6,9 +6,9 @@
     "node": ">=20.9"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "node init && next dev",
+    "build": "node init && next build",
+    "start": "node init && next start",
     "lint": "eslint .",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
@@ -66,9 +66,10 @@
   },
   "overrides": {
     "postcss": "^8.5.32",
-    "@sentry/bundler-plugins": {
-      "glob": "14.0.2",
-      "minimatch": "11.0.3"
-    }
+    "glob": "^14.0.2",
+    "@eslint/eslintrc": {
+      "minimatch": "^3.1.2"
+    },
+    "minimatch": "^11.0.8"
   }
 }

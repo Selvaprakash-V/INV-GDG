@@ -16,7 +16,6 @@ import {
   Smartphone,
   ChevronDown,
   Zap,
-  Boxes,
   Bell,
   Calculator,
   Flame,
@@ -169,20 +168,20 @@ export default function Home() {
       <header
         className={`sticky top-0 w-full z-50 transition-all duration-200 ${
           isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-slate-200/80 py-3.5'
-            : 'bg-white border-b border-slate-100 py-4'
+            ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-purple-100 py-3.5'
+            : 'bg-white/90 backdrop-blur-sm border-b border-purple-50 py-4'
         }`}
       >
         <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
           <Link href="/home" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-lg bg-slate-900 flex items-center justify-center text-white shadow-xs group-hover:bg-indigo-600 transition-colors">
-              <Boxes className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-xs group-hover:scale-105 transition-transform">
+              T
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold tracking-tight text-slate-900">
-                Track<span className="text-indigo-600">It</span>
+              <span className="text-xl font-extrabold tracking-tight text-slate-900">
+                TRACK<span className="text-purple-600">IT</span>
               </span>
-              <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+              <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
                 v2.4
               </span>
             </div>
@@ -190,22 +189,22 @@ export default function Home() {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center space-x-7 text-sm font-medium text-slate-600">
-            <a href="#console-demo" className="hover:text-slate-900 transition-colors">
+            <a href="#console-demo" className="hover:text-purple-600 transition-colors">
               Interactive Console
             </a>
-            <a href="#how-it-works" className="hover:text-slate-900 transition-colors">
+            <a href="#how-it-works" className="hover:text-purple-600 transition-colors">
               Operational Workflow
             </a>
-            <a href="#portals" className="hover:text-slate-900 transition-colors">
+            <a href="#portals" className="hover:text-purple-600 transition-colors">
               Retail vs Customer
             </a>
-            <a href="#calculator" className="hover:text-slate-900 transition-colors">
+            <a href="#calculator" className="hover:text-purple-600 transition-colors">
               Shrinkage Calculator
             </a>
-            <a href="#departments" className="hover:text-slate-900 transition-colors">
+            <a href="#departments" className="hover:text-purple-600 transition-colors">
               Departments
             </a>
-            <a href="#faq" className="hover:text-slate-900 transition-colors">
+            <a href="#faq" className="hover:text-purple-600 transition-colors">
               FAQ
             </a>
           </nav>
@@ -213,12 +212,12 @@ export default function Home() {
           {/* Action CTAs */}
           <div className="hidden sm:flex items-center gap-3">
             <Link href="/login">
-              <Button variant="ghost" className="text-slate-600 hover:text-slate-900 font-medium text-sm">
+              <Button variant="ghost" className="text-slate-600 hover:text-purple-700 font-medium text-sm">
                 Sign In
               </Button>
             </Link>
             <Link href="/role">
-              <Button className="bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-xs transition-all">
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm px-4 py-2 rounded-xl shadow-xs hover:shadow-md hover:shadow-purple-200 transition-all">
                 Launch Free Pilot
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Button>
@@ -228,7 +227,7 @@ export default function Home() {
           {/* Mobile Menu Toggle */}
           <button
             type="button"
-            className="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-purple-50 transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle navigation"
           >
@@ -249,40 +248,40 @@ export default function Home() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-white border-b border-slate-200 px-6 py-4 space-y-3"
+              className="lg:hidden bg-white border-b border-purple-100 px-6 py-4 space-y-3"
             >
               <a
                 href="#console-demo"
                 onClick={() => setIsMenuOpen(false)}
-                className="block py-2 text-sm font-medium text-slate-700 hover:text-indigo-600"
+                className="block py-2 text-sm font-medium text-slate-700 hover:text-purple-600"
               >
                 Interactive Console
               </a>
               <a
                 href="#how-it-works"
                 onClick={() => setIsMenuOpen(false)}
-                className="block py-2 text-sm font-medium text-slate-700 hover:text-indigo-600"
+                className="block py-2 text-sm font-medium text-slate-700 hover:text-purple-600"
               >
                 Operational Workflow
               </a>
               <a
                 href="#portals"
                 onClick={() => setIsMenuOpen(false)}
-                className="block py-2 text-sm font-medium text-slate-700 hover:text-indigo-600"
+                className="block py-2 text-sm font-medium text-slate-700 hover:text-purple-600"
               >
                 Retail vs Customer
               </a>
               <a
                 href="#calculator"
                 onClick={() => setIsMenuOpen(false)}
-                className="block py-2 text-sm font-medium text-slate-700 hover:text-indigo-600"
+                className="block py-2 text-sm font-medium text-slate-700 hover:text-purple-600"
               >
                 Shrinkage Calculator
               </a>
               <a
                 href="#faq"
                 onClick={() => setIsMenuOpen(false)}
-                className="block py-2 text-sm font-medium text-slate-700 hover:text-indigo-600"
+                className="block py-2 text-sm font-medium text-slate-700 hover:text-purple-600"
               >
                 FAQ
               </a>
@@ -293,7 +292,7 @@ export default function Home() {
                   </Button>
                 </Link>
                 <Link href="/role" onClick={() => setIsMenuOpen(false)}>
-                  <Button className="w-full justify-center bg-slate-900 text-white">
+                  <Button className="w-full justify-center bg-purple-600 hover:bg-purple-700 text-white">
                     Launch Free Pilot
                   </Button>
                 </Link>
@@ -303,21 +302,21 @@ export default function Home() {
         </AnimatePresence>
       </header>
 
-      {/* Hero Section: Grounded, Professional, High Impact */}
-      <section className="pt-16 pb-20 md:pt-24 md:pb-28 px-4 md:px-8 border-b border-slate-100 bg-gradient-to-b from-slate-50/60 to-white">
+      {/* Hero Section: Uniformed Violet/Purple Theme */}
+      <section className="pt-16 pb-20 md:pt-24 md:pb-28 px-4 md:px-8 border-b border-purple-100/80 bg-gradient-to-br from-violet-50/80 via-purple-50/50 to-white">
         <div className="container mx-auto max-w-5xl text-center">
-          {/* Engineering / Operations Pill - No AI Sparkles */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          {/* Engineering / Operations Pill - Uniform TrackIt Purple */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 border border-purple-200 text-purple-900 text-xs font-semibold mb-8 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-purple-600" />
             <span>Retail Shelf-Life Automation</span>
-            <span className="text-slate-300">•</span>
-            <span className="text-slate-600 font-medium">FEFO Inventory Management</span>
+            <span className="text-purple-300">•</span>
+            <span className="text-purple-700 font-medium">FEFO Inventory Management</span>
           </div>
 
-          {/* Authoritative Headline */}
+          {/* Authoritative Headline with TrackIt Purple */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tight leading-[1.12] mb-6">
             Stop Writing Off Expired Inventory.
-            <span className="block text-indigo-600 mt-2">Automate Shelf-Life & Customer Pantries.</span>
+            <span className="block text-purple-600 mt-2">Automate Shelf-Life & Customer Pantries.</span>
           </h1>
 
           {/* Subheading with Clear Value Proposition */}
@@ -332,7 +331,7 @@ export default function Home() {
             <Link href="/role" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-semibold text-base px-8 py-6 rounded-xl shadow-xs transition-all"
+                className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold text-base px-8 py-6 rounded-xl shadow-md hover:shadow-lg hover:shadow-purple-200 transition-all"
               >
                 Start Store Pilot
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -342,19 +341,19 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 border-slate-300 font-semibold text-base px-8 py-6 rounded-xl transition-all"
+                className="w-full sm:w-auto bg-white hover:bg-purple-50/70 text-purple-700 border-purple-200 font-semibold text-base px-8 py-6 rounded-xl shadow-xs transition-all"
               >
-                <Eye className="w-4 h-4 mr-2 text-indigo-600" />
+                <Eye className="w-4 h-4 mr-2 text-purple-600" />
                 Live Console Demo
               </Button>
             </a>
           </div>
 
           {/* Operational Metrics Strip */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-2xl bg-white border border-slate-200 shadow-xs max-w-4xl mx-auto text-left">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-2xl bg-white/95 backdrop-blur border border-purple-100 shadow-sm max-w-4xl mx-auto text-left">
             <div className="p-2 border-r border-slate-100 last:border-none">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                <TrendingDown className="w-3.5 h-3.5 text-emerald-600" />
+                <TrendingDown className="w-3.5 h-3.5 text-purple-600" />
                 Shrink Reduction
               </div>
               <p className="text-2xl font-black text-slate-900">44%</p>
@@ -363,7 +362,7 @@ export default function Home() {
 
             <div className="p-2 border-r border-slate-100 last:border-none">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                <Clock className="w-3.5 h-3.5 text-purple-600" />
                 Warning Horizon
               </div>
               <p className="text-2xl font-black text-slate-900">&lt; 48 Hrs</p>
@@ -381,7 +380,7 @@ export default function Home() {
 
             <div className="p-2">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                <Smartphone className="w-3.5 h-3.5 text-slate-700" />
+                <Smartphone className="w-3.5 h-3.5 text-purple-600" />
                 Deployment
               </div>
               <p className="text-2xl font-black text-slate-900">Zero Hardware</p>
@@ -392,10 +391,10 @@ export default function Home() {
       </section>
 
       {/* Interactive Retail & Pantry Console Simulator */}
-      <section id="console-demo" className="py-20 px-4 md:px-8 bg-slate-50 border-b border-slate-200">
+      <section id="console-demo" className="py-20 px-4 md:px-8 bg-gradient-to-b from-white via-purple-50/20 to-slate-50 border-b border-purple-100/80">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center max-w-3xl mx-auto mb-10">
-            <span className="text-xs uppercase font-mono font-bold tracking-wider text-indigo-600 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-md">
+            <span className="text-xs uppercase font-mono font-bold tracking-wider text-purple-700 bg-purple-100 border border-purple-200 px-3 py-1 rounded-md">
               Live Software Preview
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mt-3">
@@ -406,29 +405,29 @@ export default function Home() {
             </p>
 
             {/* View Switcher Pill */}
-            <div className="inline-flex p-1 mt-6 rounded-xl bg-slate-200 border border-slate-300">
+            <div className="inline-flex p-1 mt-6 rounded-xl bg-purple-100/80 border border-purple-200 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setActiveConsoleTab('retail')}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all cursor-pointer ${
                   activeConsoleTab === 'retail'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'text-slate-700 hover:text-purple-700'
                 }`}
               >
-                <Store className="w-4 h-4 text-indigo-600" />
+                <Store className={`w-4 h-4 ${activeConsoleTab === 'retail' ? 'text-white' : 'text-purple-600'}`} />
                 Supermarket Inventory Console
               </button>
               <button
                 type="button"
                 onClick={() => setActiveConsoleTab('consumer')}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all cursor-pointer ${
                   activeConsoleTab === 'consumer'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'text-slate-700 hover:text-purple-700'
                 }`}
               >
-                <User className="w-4 h-4 text-indigo-600" />
+                <User className={`w-4 h-4 ${activeConsoleTab === 'consumer' ? 'text-white' : 'text-purple-600'}`} />
                 Household Consumer Pantry (PWA)
               </button>
             </div>
@@ -675,20 +674,20 @@ export default function Home() {
                         <p className="text-2xl font-black text-slate-900">$340.00 <span className="text-xs font-normal text-slate-500">/ $500 cap</span></p>
 
                         <div className="w-full h-2 bg-slate-200 rounded-full mt-3 overflow-hidden">
-                          <div className="w-[68%] h-full bg-indigo-600 rounded-full transition-all duration-500" />
+                          <div className="w-[68%] h-full bg-purple-600 rounded-full transition-all duration-500" />
                         </div>
                         <p className="text-xs text-slate-500 mt-1 font-medium">68% of monthly allocation used</p>
 
                         <div className="mt-6 p-3 rounded-lg bg-white border border-slate-200 text-xs text-slate-600 space-y-1">
                           <p className="font-bold text-slate-800 flex items-center gap-1.5">
-                            <Bell className="w-3.5 h-3.5 text-indigo-600" /> Push Expiry Alert Active
+                            <Bell className="w-3.5 h-3.5 text-purple-600" /> Push Expiry Alert Active
                           </p>
                           <p>Shopper notified 48h prior to perishable expiry dates to prevent domestic discard.</p>
                         </div>
                       </div>
 
                       <Link href="/customersignup" className="mt-6">
-                        <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2 rounded-lg">
+                        <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs py-2 rounded-xl shadow-xs hover:shadow-md hover:shadow-purple-200 transition-all">
                           Create Free Customer Pantry
                         </Button>
                       </Link>
@@ -702,10 +701,10 @@ export default function Home() {
       </section>
 
       {/* The Operational Crisis: Real Retail Economics */}
-      <section className="py-20 px-4 md:px-8 bg-slate-900 text-white">
+      <section className="py-20 px-4 md:px-8 bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950/80 text-white">
         <div className="container mx-auto max-w-5xl">
           <div className="max-w-3xl mb-14">
-            <span className="text-xs uppercase font-mono tracking-widest text-indigo-400 font-bold">
+            <span className="text-xs uppercase font-mono tracking-widest text-purple-400 font-bold">
               The Grocery Margin Dilemma
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-white">
@@ -735,7 +734,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl bg-slate-800/90 border border-slate-700 transition-all">
-              <span className="font-mono text-3xl font-black text-emerald-400">62%</span>
+              <span className="font-mono text-3xl font-black text-purple-400">62%</span>
               <h3 className="font-bold text-lg text-white mt-2">Recoverable via FEFO</h3>
               <p className="text-slate-400 text-xs mt-2 leading-relaxed">
                 Automated First-Expired, First-Out alerts and automated step-down promotional markdowns recover up to 62% of at-risk gross revenue.
@@ -746,10 +745,10 @@ export default function Home() {
       </section>
 
       {/* Operational 3-Step Architecture */}
-      <section id="how-it-works" className="py-20 px-4 md:px-8 bg-white border-b border-slate-200">
+      <section id="how-it-works" className="py-20 px-4 md:px-8 bg-white border-b border-purple-100/80">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs uppercase font-mono font-bold tracking-wider text-slate-500 bg-slate-100 px-3 py-1 rounded-md border border-slate-200">
+            <span className="text-xs uppercase font-mono font-bold tracking-wider text-purple-700 bg-purple-100 px-3 py-1 rounded-md border border-purple-200">
               Operational Journey
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mt-3">
@@ -761,9 +760,9 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between transition-all shadow-xs hover:shadow-md">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-purple-300 hover:shadow-purple-100/60 flex flex-col justify-between transition-all shadow-xs hover:shadow-md">
               <div>
-                <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
+                <span className="font-mono text-xs font-bold text-purple-700 bg-purple-100 px-2 py-1 rounded border border-purple-200">
                   STEP 01
                 </span>
                 <h3 className="font-bold text-slate-900 text-lg mt-4 mb-2">Batch Receiving & FEFO Tagging</h3>
@@ -773,13 +772,13 @@ export default function Home() {
                 </p>
               </div>
               <div className="pt-4 mt-6 border-t border-slate-200 text-xs font-medium text-slate-600 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Department-specific expiry rules
+                <CheckCircle2 className="w-4 h-4 text-purple-600" /> Department-specific expiry rules
               </div>
             </motion.div>
 
-            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between transition-all shadow-xs hover:shadow-md">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-purple-300 hover:shadow-purple-100/60 flex flex-col justify-between transition-all shadow-xs hover:shadow-md">
               <div>
-                <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
+                <span className="font-mono text-xs font-bold text-purple-700 bg-purple-100 px-2 py-1 rounded border border-purple-200">
                   STEP 02
                 </span>
                 <h3 className="font-bold text-slate-900 text-lg mt-4 mb-2">Automated Early Markdown Engine</h3>
@@ -789,13 +788,13 @@ export default function Home() {
                 </p>
               </div>
               <div className="pt-4 mt-6 border-t border-slate-200 text-xs font-medium text-slate-600 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Step-down promotional pricing
+                <CheckCircle2 className="w-4 h-4 text-purple-600" /> Step-down promotional pricing
               </div>
             </motion.div>
 
-            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between transition-all shadow-xs hover:shadow-md">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-purple-300 hover:shadow-purple-100/60 flex flex-col justify-between transition-all shadow-xs hover:shadow-md">
               <div>
-                <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
+                <span className="font-mono text-xs font-bold text-purple-700 bg-purple-100 px-2 py-1 rounded border border-purple-200">
                   STEP 03
                 </span>
                 <h3 className="font-bold text-slate-900 text-lg mt-4 mb-2">POS Sync & Consumer Transfer</h3>
@@ -805,7 +804,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="pt-4 mt-6 border-t border-slate-200 text-xs font-medium text-slate-600 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Multi-document transaction safety
+                <CheckCircle2 className="w-4 h-4 text-purple-600" /> Multi-document transaction safety
               </div>
             </motion.div>
           </div>
@@ -813,10 +812,10 @@ export default function Home() {
       </section>
 
       {/* Interactive Shrinkage & Financial Recovery Calculator */}
-      <section id="calculator" className="py-20 px-4 md:px-8 bg-slate-900 text-white">
+      <section id="calculator" className="py-20 px-4 md:px-8 bg-gradient-to-br from-slate-950 via-purple-950/70 to-slate-900 text-white">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs uppercase font-mono font-bold tracking-widest text-emerald-400 bg-emerald-950 px-3 py-1 rounded border border-emerald-800">
+            <span className="text-xs uppercase font-mono font-bold tracking-widest text-purple-300 bg-purple-950/80 px-3 py-1 rounded border border-purple-800">
               Financial Analysis
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-3 text-white">
@@ -827,15 +826,15 @@ export default function Home() {
             </p>
 
             {/* Mode Switcher */}
-            <div className="inline-flex p-1 mt-6 rounded-lg bg-slate-800 border border-slate-700">
+            <div className="inline-flex p-1 mt-6 rounded-xl bg-slate-800 border border-purple-900/60">
               <button
                 type="button"
                 onClick={() => {
                   setCalcMode('retail');
                   setMonthlyVolume(45000);
                 }}
-                className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                  calcMode === 'retail' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  calcMode === 'retail' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Supermarket Store ($)
@@ -846,8 +845,8 @@ export default function Home() {
                   setCalcMode('household');
                   setMonthlyVolume(650);
                 }}
-                className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                  calcMode === 'household' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  calcMode === 'household' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Household Consumer ($)
@@ -855,7 +854,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8 md:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="bg-slate-800/90 rounded-2xl border border-purple-900/50 p-8 md:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center shadow-xl">
             {/* Input Controls */}
             <div className="lg:col-span-7 space-y-6">
               {calcMode === 'retail' ? (
@@ -864,7 +863,7 @@ export default function Home() {
                     <label htmlFor={retailerVolumeInputId} className="text-sm font-semibold text-slate-300">
                       Monthly Store Inventory / Turnover
                     </label>
-                    <span className="text-2xl font-mono font-black text-indigo-400">
+                    <span className="text-2xl font-mono font-black text-purple-300">
                       ${monthlyVolume.toLocaleString()}
                     </span>
                   </div>
@@ -876,7 +875,7 @@ export default function Home() {
                     step="2500"
                     value={monthlyVolume}
                     onChange={(e) => setMonthlyVolume(Number(e.target.value))}
-                    className="w-full accent-indigo-500 cursor-pointer h-2 bg-slate-700 rounded-lg appearance-none"
+                    className="w-full accent-purple-500 cursor-pointer h-2 bg-slate-700 rounded-lg appearance-none"
                   />
                   <div className="flex justify-between font-mono text-[11px] text-slate-500 mt-2">
                     <span>$5,000 / mo</span>
@@ -889,7 +888,7 @@ export default function Home() {
                     <label htmlFor={householdSpendInputId} className="text-sm font-semibold text-slate-300">
                       Monthly Family Grocery Spend
                     </label>
-                    <span className="text-2xl font-mono font-black text-indigo-400">
+                    <span className="text-2xl font-mono font-black text-purple-300">
                       ${monthlyVolume.toLocaleString()}
                     </span>
                   </div>
@@ -901,7 +900,7 @@ export default function Home() {
                     step="50"
                     value={monthlyVolume}
                     onChange={(e) => setMonthlyVolume(Number(e.target.value))}
-                    className="w-full accent-indigo-500 cursor-pointer h-2 bg-slate-700 rounded-lg appearance-none"
+                    className="w-full accent-purple-500 cursor-pointer h-2 bg-slate-700 rounded-lg appearance-none"
                   />
                   <div className="flex justify-between font-mono text-[11px] text-slate-500 mt-2">
                     <span>$200 / mo</span>
@@ -910,27 +909,27 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 text-xs text-slate-300 space-y-1">
+              <div className="p-4 rounded-xl bg-slate-900/80 border border-purple-900/40 text-xs text-slate-300 space-y-1">
                 <p className="font-bold text-white flex items-center gap-1.5">
-                  <Calculator className="w-3.5 h-3.5 text-indigo-400" />
+                  <Calculator className="w-3.5 h-3.5 text-purple-400" />
                   Calculated Parameters:
                 </p>
                 <p>
                   Estimated baseline annual perishable shrink loss:{' '}
                   <span className="font-mono text-rose-400 font-bold">{shrinkModel.baselineLossFormatted}</span>. TrackIt
-                  reclaims <span className="font-bold text-emerald-400">{shrinkModel.recapturedPercent}%</span> of this
+                  reclaims <span className="font-bold text-purple-400">{shrinkModel.recapturedPercent}%</span> of this
                   loss via algorithmic markdown rotation.
                 </p>
               </div>
             </div>
 
             {/* Results Panel */}
-            <div className="lg:col-span-5 bg-slate-900/90 p-6 rounded-xl border border-slate-700 text-center space-y-5">
+            <div className="lg:col-span-5 bg-purple-950/40 p-6 rounded-xl border border-purple-900/50 text-center space-y-5">
               <div>
-                <span className="text-xs uppercase font-mono tracking-wider text-slate-400 font-semibold">
+                <span className="text-xs uppercase font-mono tracking-wider text-purple-300 font-semibold">
                   Projected Annual Recaptured Margin
                 </span>
-                <p className="text-4xl font-mono font-black text-emerald-400 mt-2">
+                <p className="text-4xl font-mono font-black text-purple-300 mt-2">
                   {shrinkModel.annualSavingsFormatted}
                 </p>
                 <p className="text-xs text-slate-400 mt-1 font-mono">
@@ -938,19 +937,19 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800 text-left">
-                <div className="p-3 bg-slate-800 rounded-lg">
-                  <span className="text-[11px] text-slate-400 block">Food Rescued</span>
+              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-purple-900/50 text-left">
+                <div className="p-3 bg-slate-900/80 rounded-lg border border-purple-900/30">
+                  <span className="text-[11px] text-purple-300 block">Food Rescued</span>
                   <span className="text-base font-bold text-slate-200 font-mono">{shrinkModel.foodSavedKg} kg</span>
                 </div>
-                <div className="p-3 bg-slate-800 rounded-lg">
-                  <span className="text-[11px] text-slate-400 block">CO2e Diverted</span>
+                <div className="p-3 bg-slate-900/80 rounded-lg border border-purple-900/30">
+                  <span className="text-[11px] text-purple-300 block">CO2e Diverted</span>
                   <span className="text-base font-bold text-slate-200 font-mono">{shrinkModel.co2eAvoidedTons} Tons</span>
                 </div>
               </div>
 
               <Link href="/role" className="block w-full">
-                <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 rounded-lg text-xs">
+                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 rounded-xl text-xs shadow-md shadow-purple-950 transition-all">
                   Deploy TrackIt for Your Store
                 </Button>
               </Link>
@@ -960,9 +959,9 @@ export default function Home() {
       </section>
 
       {/* 10 Supermarket Departments Coverage with Clean Lucide Icons */}
-      <section id="departments" className="py-20 px-4 md:px-8 bg-white border-b border-slate-200">
+      <section id="departments" className="py-20 px-4 md:px-8 bg-white border-b border-purple-100/80">
         <div className="container mx-auto max-w-5xl text-center">
-          <span className="text-xs uppercase font-mono font-bold tracking-wider text-slate-500 bg-slate-100 px-3 py-1 rounded-md border border-slate-200">
+          <span className="text-xs uppercase font-mono font-bold tracking-wider text-purple-700 bg-purple-100 px-3 py-1 rounded-md border border-purple-200">
             Catalog Compatibility
           </span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mt-3 mb-2">
@@ -974,7 +973,7 @@ export default function Home() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
             {[
-              { name: 'Dairy & Eggs', icon: <Milk className="w-6 h-6 text-indigo-600" />, shelf: '7–14 Days', desc: 'Milk, cheese, yogurt' },
+              { name: 'Dairy & Eggs', icon: <Milk className="w-6 h-6 text-purple-600" />, shelf: '7–14 Days', desc: 'Milk, cheese, yogurt' },
               { name: 'Bakery', icon: <Wheat className="w-6 h-6 text-amber-600" />, shelf: '2–4 Days', desc: 'Artisan bread, rolls' },
               { name: 'Fresh Produce', icon: <Apple className="w-6 h-6 text-emerald-600" />, shelf: '3–10 Days', desc: 'Apples, greens, berries' },
               { name: 'Meat & Poultry', icon: <Beef className="w-6 h-6 text-rose-600" />, shelf: '2–5 Days', desc: 'Beef, chicken, salmon' },
@@ -982,13 +981,13 @@ export default function Home() {
               { name: 'Dry Snacks', icon: <Cookie className="w-6 h-6 text-orange-600" />, shelf: '60–180 Days', desc: 'Chips, crackers, bars' },
               { name: 'Canned Goods', icon: <Container className="w-6 h-6 text-slate-600" />, shelf: '1–2 Years', desc: 'Legumes, soups, sauces' },
               { name: 'Frozen Goods', icon: <Snowflake className="w-6 h-6 text-cyan-600" />, shelf: '6–12 Months', desc: 'Ice cream, meals, veg' },
-              { name: 'Household', icon: <PackageCheck className="w-6 h-6 text-slate-700" />, shelf: 'Stable', desc: 'Cleaners, detergents' },
+              { name: 'Household', icon: <PackageCheck className="w-6 h-6 text-purple-600" />, shelf: 'Stable', desc: 'Cleaners, detergents' },
               { name: 'Personal Care', icon: <HeartPulse className="w-6 h-6 text-pink-600" />, shelf: 'Stable', desc: 'Hygiene, toiletries' },
             ].map((dept) => (
               <motion.div
                 key={dept.name}
                 whileHover={{ y: -3, scale: 1.02 }}
-                className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-slate-300 hover:bg-slate-50 transition-all text-left shadow-xs cursor-default"
+                className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-purple-300 hover:shadow-purple-100/50 hover:bg-slate-50 transition-all text-left shadow-xs cursor-default"
               >
                 <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center mb-3">
                   {dept.icon}
@@ -1003,29 +1002,29 @@ export default function Home() {
       </section>
 
       {/* Enterprise Security & Data Integrity Specifications */}
-      <section className="py-16 bg-slate-50 border-b border-slate-200 px-4 md:px-8">
+      <section className="py-16 bg-gradient-to-br from-violet-50/50 via-purple-50/30 to-white border-b border-purple-100/80 px-4 md:px-8">
         <div className="container mx-auto max-w-5xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-slate-200 text-left transition-all shadow-xs hover:shadow-md">
-              <Database className="w-5 h-5 text-indigo-600 mb-2" />
+            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-purple-100/80 hover:border-purple-300 text-left transition-all shadow-xs hover:shadow-md hover:shadow-purple-100/40">
+              <Database className="w-5 h-5 text-purple-600 mb-2" />
               <h4 className="font-bold text-slate-900 text-sm">ACID Transaction Safety</h4>
               <p className="text-xs text-slate-500 mt-1">Multi-document MongoDB transactions prevent race conditions during POS stock deduction.</p>
             </motion.div>
 
-            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-slate-200 text-left transition-all shadow-xs hover:shadow-md">
-              <Zap className="w-5 h-5 text-indigo-600 mb-2" />
+            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-purple-100/80 hover:border-purple-300 text-left transition-all shadow-xs hover:shadow-md hover:shadow-purple-100/40">
+              <Zap className="w-5 h-5 text-purple-600 mb-2" />
               <h4 className="font-bold text-slate-900 text-sm">Sub-50ms API Response</h4>
               <p className="text-xs text-slate-500 mt-1">Serverless Vercel edge deployment backed by in-memory Redis keyset caching.</p>
             </motion.div>
 
-            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-slate-200 text-left transition-all shadow-xs hover:shadow-md">
-              <ShieldCheck className="w-5 h-5 text-indigo-600 mb-2" />
+            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-purple-100/80 hover:border-purple-300 text-left transition-all shadow-xs hover:shadow-md hover:shadow-purple-100/40">
+              <ShieldCheck className="w-5 h-5 text-purple-600 mb-2" />
               <h4 className="font-bold text-slate-900 text-sm">Multi-Tenant Scoping</h4>
               <p className="text-xs text-slate-500 mt-1">Strict storeId isolation prevents any cross-store data leakage or cross-inventory viewing.</p>
             </motion.div>
 
-            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-slate-200 text-left transition-all shadow-xs hover:shadow-md">
-              <Accessibility className="w-5 h-5 text-indigo-600 mb-2" />
+            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-purple-100/80 hover:border-purple-300 text-left transition-all shadow-xs hover:shadow-md hover:shadow-purple-100/40">
+              <Accessibility className="w-5 h-5 text-purple-600 mb-2" />
               <h4 className="font-bold text-slate-900 text-sm">WCAG 2.1 AA Compliance</h4>
               <p className="text-xs text-slate-500 mt-1">Audited with Axe Core with 0 automated accessibility violations on screen readers.</p>
             </motion.div>
@@ -1034,10 +1033,10 @@ export default function Home() {
       </section>
 
       {/* Frequently Asked Questions */}
-      <section id="faq" className="py-20 px-4 md:px-8 bg-white border-b border-slate-200">
+      <section id="faq" className="py-20 px-4 md:px-8 bg-white border-b border-purple-100/80">
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-12">
-            <span className="text-xs uppercase font-mono font-bold tracking-wider text-slate-500 bg-slate-100 px-3 py-1 rounded-md border border-slate-200">
+            <span className="text-xs uppercase font-mono font-bold tracking-wider text-purple-700 bg-purple-100 px-3 py-1 rounded-md border border-purple-200">
               Technical & Operational Details
             </span>
             <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-3">
@@ -1051,17 +1050,17 @@ export default function Home() {
               return (
                 <div
                   key={faq.q}
-                  className="rounded-xl border border-slate-200 overflow-hidden bg-white"
+                  className="rounded-xl border border-slate-200 hover:border-purple-200 overflow-hidden bg-white transition-colors"
                 >
                   <button
                     type="button"
                     onClick={() => setOpenFaqIndex(isOpen ? -1 : index)}
-                    className="w-full p-5 text-left flex justify-between items-center gap-4 hover:bg-slate-50 transition-colors"
+                    className="w-full p-5 text-left flex justify-between items-center gap-4 hover:bg-purple-50/30 transition-colors cursor-pointer"
                   >
                     <span className="font-bold text-slate-900 text-sm md:text-base">{faq.q}</span>
                     <ChevronDown
                       className={`w-4 h-4 text-slate-500 transition-transform duration-200 shrink-0 ${
-                        isOpen ? 'rotate-180' : ''
+                        isOpen ? 'rotate-180 text-purple-600' : ''
                       }`}
                     />
                   </button>
@@ -1074,7 +1073,7 @@ export default function Home() {
                         transition={{ duration: 0.22, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <div className="px-5 pb-5 text-slate-600 text-xs md:text-sm leading-relaxed border-t border-slate-100 pt-3 bg-slate-50/40">
+                        <div className="px-5 pb-5 text-slate-600 text-xs md:text-sm leading-relaxed border-t border-purple-100 pt-3 bg-purple-50/20">
                           {faq.a}
                         </div>
                       </motion.div>
@@ -1087,16 +1086,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* High-Contrast Conversion Banner */}
-      <section className="py-20 px-4 md:px-8 bg-slate-950 text-white text-center">
+      {/* High-Contrast Conversion Banner: Unified Purple & Dark Slate */}
+      <section className="py-20 px-4 md:px-8 bg-gradient-to-br from-purple-950 via-slate-950 to-slate-900 text-white text-center">
         <div className="container mx-auto max-w-4xl">
-          <span className="text-xs uppercase font-mono tracking-widest text-emerald-400 font-bold">
+          <span className="text-xs uppercase font-mono tracking-widest text-purple-300 font-bold">
             Pilot Onboarding Available
           </span>
           <h2 className="text-3xl md:text-5xl font-black tracking-tight mt-3 mb-4">
             Deploy TrackIt in Your Supermarket Today
           </h2>
-          <p className="text-slate-400 text-base max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p className="text-slate-300 text-base max-w-2xl mx-auto mb-8 leading-relaxed">
             Eliminate preventable perishable write-offs and give your customers a modern digital pantry experience.
           </p>
 
@@ -1104,7 +1103,7 @@ export default function Home() {
             <Link href="/administratorsignup" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm px-6 py-5 rounded-lg shadow-xs"
+                className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm px-6 py-5 rounded-xl shadow-lg shadow-purple-950 hover:shadow-purple-900 transition-all"
               >
                 Register as Supermarket Admin
                 <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -1114,7 +1113,7 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto bg-transparent hover:bg-slate-900 text-slate-300 border-slate-700 font-medium text-sm px-6 py-5 rounded-lg"
+                className="w-full sm:w-auto bg-transparent hover:bg-purple-900/40 text-purple-200 border-purple-500/50 font-medium text-sm px-6 py-5 rounded-xl transition-all"
               >
                 Create Free Consumer Account
               </Button>

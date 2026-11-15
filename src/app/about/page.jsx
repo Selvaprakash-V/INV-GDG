@@ -42,12 +42,14 @@ export default function AboutPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Link href="/">
-  <h1 className="text-3xl font-extrabold tracking-wide hover:scale-105 transition-transform duration-300">
-    <span className="text-purple-600">TRAC</span><span className="text-pink-600">KIT</span>
-  </h1>
-</Link>
-
+            <Link href="/home" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-xs group-hover:scale-105 transition-transform">
+                T
+              </div>
+              <span className="font-extrabold text-2xl tracking-tight text-slate-900">
+                TRACK<span className="text-purple-600">IT</span>
+              </span>
+            </Link>
           </motion.div>
 
           <nav className="hidden md:flex items-center space-x-6">

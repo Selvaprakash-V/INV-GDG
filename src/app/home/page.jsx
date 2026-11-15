@@ -8,6 +8,7 @@ import {
   User,
   ShieldCheck,
   TrendingUp,
+  TrendingDown,
   AlertTriangle,
   Calendar,
   QrCode,
@@ -24,10 +25,21 @@ import {
   Boxes,
   Bell,
   Calculator,
-  Activity,
-  Award,
   Flame,
   Check,
+  Eye,
+  Globe2,
+  Milk,
+  Wheat,
+  Apple,
+  Beef,
+  Coffee,
+  Cookie,
+  Container,
+  Snowflake,
+  HeartPulse,
+  Database,
+  Accessibility,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -249,55 +261,37 @@ export default function Home() {
         </AnimatePresence>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section - 100% Instantly Visible (Zero Opacity Delay) */}
       <section className="relative pt-32 md:pt-40 pb-20 px-4 md:px-8 overflow-hidden">
         <div className="container mx-auto max-w-6xl text-center">
           {/* Innovation Pill */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100/80 border border-purple-200/80 text-purple-800 text-xs md:text-sm font-semibold mb-6 shadow-xs backdrop-blur-xs"
-          >
-            <Sparkles className="w-4 h-4 text-purple-600" />
-            <span>Smart Grocery & Inventory Expiry Radar</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100/90 border border-purple-200/90 text-purple-900 text-xs md:text-sm font-semibold mb-6 shadow-sm">
+            <Sparkles className="w-4 h-4 text-purple-600 animate-pulse" />
+            <span>AI & Barcode Expiry Radar</span>
             <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-            <span className="text-purple-600">UN SDG 12.3 Aligned</span>
-          </motion.div>
+            <span className="text-purple-700 font-bold flex items-center gap-1">
+              <Globe2 className="w-3.5 h-3.5 text-purple-600" /> UN SDG 12.3 Aligned
+            </span>
+          </div>
 
           {/* Main Hero Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6"
-          >
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6">
             Eliminate Food Spoilage.{' '}
             <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent">
               Protect Margins.
             </span>
             <br className="hidden sm:inline" /> Empower Smarter Groceries.
-          </motion.h1>
+          </h1>
 
           {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-3xl mx-auto text-lg sm:text-xl text-slate-600 leading-relaxed mb-10"
-          >
+          <p className="max-w-3xl mx-auto text-lg sm:text-xl text-slate-600 leading-relaxed mb-10">
             TrackIt is the high-velocity, closed-loop platform connecting <strong>supermarkets</strong> and{' '}
             <strong>household consumers</strong>. Automatically track batch expiry, trigger early markdown alerts at the POS,
             and synchronize purchased food to digital pantries before it spoils.
-          </motion.p>
+          </p>
 
           {/* Hero Action Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
-          >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <Link href="/role" className="w-full sm:w-auto">
               <Button
                 size="lg"
@@ -311,38 +305,37 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto bg-white/90 hover:bg-slate-100 text-slate-800 border-slate-300 font-bold text-base px-8 py-6 rounded-2xl shadow-sm hover:-translate-y-0.5 transition-all"
+                className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-800 border-slate-300 font-bold text-base px-8 py-6 rounded-2xl shadow-sm hover:-translate-y-0.5 transition-all"
               >
-                <Activity className="w-5 h-5 mr-2 text-purple-600" />
+                <Eye className="w-5 h-5 mr-2 text-purple-600" />
                 Explore Live Demo
               </Button>
             </a>
-          </motion.div>
+          </div>
 
-          {/* Social Proof Stats Strip */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-3xl bg-white/70 backdrop-blur-md border border-purple-100 shadow-sm max-w-4xl mx-auto"
-          >
+          {/* Social Proof Stats Strip with Professional Lucide Icons */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-3xl bg-white/90 backdrop-blur-md border border-purple-100 shadow-sm max-w-4xl mx-auto">
             <div className="text-center p-3 border-r border-slate-100 last:border-none">
+              <TrendingDown className="w-5 h-5 text-purple-600 mx-auto mb-1.5" />
               <p className="text-3xl lg:text-4xl font-extrabold text-purple-600">42%</p>
               <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Average Waste Reduction</p>
             </div>
             <div className="text-center p-3 border-r border-slate-100 last:border-none">
+              <Clock className="w-5 h-5 text-pink-600 mx-auto mb-1.5" />
               <p className="text-3xl lg:text-4xl font-extrabold text-pink-600">&lt; 48 Hrs</p>
               <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Early Warning Radar</p>
             </div>
             <div className="text-center p-3 border-r border-slate-100 last:border-none">
+              <ShieldCheck className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
               <p className="text-3xl lg:text-4xl font-extrabold text-indigo-600">100%</p>
               <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">ACID POS Transaction Sync</p>
             </div>
             <div className="text-center p-3">
+              <Smartphone className="w-5 h-5 text-emerald-600 mx-auto mb-1.5" />
               <p className="text-3xl lg:text-4xl font-extrabold text-emerald-600">0 App</p>
               <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Hardware Free / PWA</p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -552,7 +545,9 @@ export default function Home() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/70">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">🥛</span>
+                          <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                            <Milk className="w-5 h-5" />
+                          </div>
                           <div>
                             <p className="font-bold text-slate-800 text-sm">Fresh Whole Milk</p>
                             <p className="text-xs text-slate-500">Purchased Nov 14 • 1L Bottle</p>
@@ -567,7 +562,9 @@ export default function Home() {
 
                       <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50/60 border border-amber-200">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">🍞</span>
+                          <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                            <Wheat className="w-5 h-5" />
+                          </div>
                           <div>
                             <p className="font-bold text-slate-800 text-sm">Whole Wheat Pita Pockets</p>
                             <p className="text-xs text-amber-700 font-semibold">Eat today or tomorrow!</p>
@@ -582,7 +579,9 @@ export default function Home() {
 
                       <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/70">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">🥑</span>
+                          <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                            <Apple className="w-5 h-5" />
+                          </div>
                           <div>
                             <p className="font-bold text-slate-800 text-sm">Hass Avocados (3-Pack)</p>
                             <p className="text-xs text-slate-500">Pantry produce shelf</p>
@@ -1103,22 +1102,22 @@ export default function Home() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {[
-              { name: 'Dairy & Eggs', icon: '🥛', desc: 'Milk, cheese, yogurt' },
-              { name: 'Bakery', icon: '🍞', desc: 'Bread, pastries, rolls' },
-              { name: 'Fresh Produce', icon: '🍎', desc: 'Fruits, vegetables' },
-              { name: 'Meat & Seafood', icon: '🥩', desc: 'Poultry, beef, fish' },
-              { name: 'Beverages', icon: '🧃', desc: 'Juices, water, sodas' },
-              { name: 'Snacks & Sweets', icon: '🥨', desc: 'Chips, nuts, bars' },
-              { name: 'Canned Goods', icon: '🥫', desc: 'Beans, soups, sauces' },
-              { name: 'Frozen Foods', icon: '🧊', desc: 'Meals, vegetables, ice' },
-              { name: 'Household', icon: '🧼', desc: 'Soaps, cleaning' },
-              { name: 'Personal Care', icon: '🪥', desc: 'Toiletries, hygiene' },
+              { name: 'Dairy & Eggs', icon: <Milk className="w-8 h-8 text-blue-600 mx-auto" />, desc: 'Milk, cheese, yogurt' },
+              { name: 'Bakery', icon: <Wheat className="w-8 h-8 text-amber-600 mx-auto" />, desc: 'Bread, pastries, rolls' },
+              { name: 'Fresh Produce', icon: <Apple className="w-8 h-8 text-red-500 mx-auto" />, desc: 'Fruits, vegetables' },
+              { name: 'Meat & Seafood', icon: <Beef className="w-8 h-8 text-rose-600 mx-auto" />, desc: 'Poultry, beef, fish' },
+              { name: 'Beverages', icon: <Coffee className="w-8 h-8 text-teal-600 mx-auto" />, desc: 'Juices, water, sodas' },
+              { name: 'Snacks & Sweets', icon: <Cookie className="w-8 h-8 text-orange-500 mx-auto" />, desc: 'Chips, nuts, bars' },
+              { name: 'Canned Goods', icon: <Container className="w-8 h-8 text-slate-600 mx-auto" />, desc: 'Beans, soups, sauces' },
+              { name: 'Frozen Foods', icon: <Snowflake className="w-8 h-8 text-cyan-500 mx-auto" />, desc: 'Meals, vegetables, ice' },
+              { name: 'Household', icon: <Sparkles className="w-8 h-8 text-indigo-600 mx-auto" />, desc: 'Soaps, cleaning' },
+              { name: 'Personal Care', icon: <HeartPulse className="w-8 h-8 text-pink-600 mx-auto" />, desc: 'Toiletries, hygiene' },
             ].map((dept) => (
               <div
                 key={dept.name}
                 className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-purple-300 hover:shadow-md transition-all text-center group"
               >
-                <span className="text-3xl mb-2 block group-hover:scale-110 transition-transform">{dept.icon}</span>
+                <div className="mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">{dept.icon}</div>
                 <h3 className="font-bold text-slate-800 text-sm">{dept.name}</h3>
                 <p className="text-[11px] text-slate-500 mt-1">{dept.desc}</p>
               </div>
@@ -1133,7 +1132,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200/60 shadow-2xs">
               <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-6 h-6" />
+                <Database className="w-6 h-6" />
               </div>
               <div>
                 <h4 className="font-bold text-slate-900 text-sm">ACID Data Safety</h4>
@@ -1163,7 +1162,7 @@ export default function Home() {
 
             <div className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200/60 shadow-2xs">
               <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                <Award className="w-6 h-6" />
+                <Accessibility className="w-6 h-6" />
               </div>
               <div>
                 <h4 className="font-bold text-slate-900 text-sm">WCAG 2.1 AA</h4>

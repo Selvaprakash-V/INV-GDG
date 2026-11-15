@@ -36,6 +36,7 @@ import {
   Receipt,
   CheckCircle2,
   Tag,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +49,20 @@ export default function Home() {
   const [calcMode, setCalcMode] = useState('retail'); // 'retail' | 'household'
   const [monthlyVolume, setMonthlyVolume] = useState(45000); // Standard supermarket inventory value ($45k)
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [isReloading, setIsReloading] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState('Just now');
+  const [syncFlash, setSyncFlash] = useState(false);
+
+  const handleReloadConsole = () => {
+    if (isReloading) return;
+    setIsReloading(true);
+    setTimeout(() => {
+      setIsReloading(false);
+      setSyncFlash(true);
+      setLastSyncTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setTimeout(() => setSyncFlash(false), 1200);
+    }, 600);
+  };
 
   const retailerVolumeInputId = useId();
   const householdSpendInputId = useId();
@@ -433,220 +448,255 @@ export default function Home() {
                     : 'trackit://customer/dashboard — Home Fridge & Pantry'}
                 </span>
               </div>
-              <span className="font-mono text-xs text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded border border-emerald-800">
-                ● LIVE REPLICA SET
-              </span>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={handleReloadConsole}
+                  disabled={isReloading}
+                  className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] sm:text-xs font-mono transition-all disabled:opacity-50 cursor-pointer"
+                  title="Simulate Real-time Batch Refresh"
+                >
+                  <RefreshCw className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isReloading ? 'animate-spin text-indigo-400' : ''}`} />
+                  <span>{isReloading ? 'Syncing...' : 'Reload Feed'}</span>
+                </button>
+                <span className="font-mono text-[10px] sm:text-xs text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800 flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  LIVE REPLICA
+                </span>
+              </div>
             </div>
 
-            {/* View A: Supermarket Inventory Console */}
-            {activeConsoleTab === 'retail' && (
-              <div className="p-6 md:p-8 space-y-6">
-                {/* Store KPI Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                    <span className="text-xs font-mono font-medium text-slate-500 uppercase">Tracked SKUs</span>
-                    <p className="text-2xl font-black text-slate-900 mt-1">52 Products</p>
-                    <span className="text-xs text-slate-500 font-medium">10 Departments Configured</span>
+            {/* View A & B Animated Switcher */}
+            <AnimatePresence mode="wait">
+              {activeConsoleTab === 'retail' ? (
+                <motion.div
+                  key="retail"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="p-6 md:p-8 space-y-6"
+                >
+                  {/* Store KPI Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <motion.div whileHover={{ y: -2 }} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 transition-all">
+                      <span className="text-xs font-mono font-medium text-slate-500 uppercase">Tracked SKUs</span>
+                      <p className="text-2xl font-black text-slate-900 mt-1">52 Products</p>
+                      <span className="text-xs text-slate-500 font-medium">10 Departments Configured</span>
+                    </motion.div>
+
+                    <motion.div whileHover={{ y: -2 }} className="p-4 rounded-xl border border-amber-200 bg-amber-50/40 transition-all">
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs font-mono font-semibold text-amber-700 uppercase">Critical Horizon (&lt;48h)</span>
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                      </div>
+                      <p className="text-2xl font-black text-amber-900 mt-1">7 Batches</p>
+                      <span className="text-xs text-amber-700 font-medium">Auto-mark downs applied</span>
+                    </motion.div>
+
+                    <motion.div whileHover={{ y: -2 }} className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 transition-all">
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs font-mono font-semibold text-rose-700 uppercase">Low Stock Trigger</span>
+                        <Flame className="w-4 h-4 text-rose-600" />
+                      </div>
+                      <p className="text-2xl font-black text-rose-900 mt-1">4 Items</p>
+                      <span className="text-xs text-rose-600 font-medium">Below safety threshold</span>
+                    </motion.div>
+
+                    <motion.div whileHover={{ y: -2 }} className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 transition-all">
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs font-mono font-semibold text-emerald-700 uppercase">Recaptured Margin</span>
+                        <DollarSign className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <p className="text-2xl font-black text-emerald-900 mt-1">$1,480.00</p>
+                      <span className="text-xs text-emerald-600 font-medium">MTD via FEFO rotation</span>
+                    </motion.div>
                   </div>
 
-                  <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/40">
-                    <div className="flex justify-between items-start">
-                      <span className="text-xs font-mono font-semibold text-amber-700 uppercase">Critical Horizon (&lt;48h)</span>
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  {/* Real-time Inventory Table */}
+                  <div className={`rounded-xl border border-slate-200 overflow-hidden transition-all duration-500 ${syncFlash ? 'ring-2 ring-emerald-500/80 bg-emerald-50/20 shadow-sm' : ''}`}>
+                    <div className="p-3.5 bg-slate-100/70 border-b border-slate-200 flex justify-between items-center text-xs">
+                      <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+                        Active Expiration Watchlist (FEFO Queue)
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-[11px] text-slate-500 flex items-center gap-1.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${syncFlash ? 'bg-emerald-400 animate-ping' : 'bg-emerald-500'}`} />
+                          SYNCED: {lastSyncTime}
+                        </span>
+                        <span className="font-mono text-slate-500 hidden sm:inline">SORT: EXPIRY_ASC</span>
+                      </div>
                     </div>
-                    <p className="text-2xl font-black text-amber-900 mt-1">7 Batches</p>
-                    <span className="text-xs text-amber-700 font-medium">Auto-mark downs applied</span>
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/40">
-                    <div className="flex justify-between items-start">
-                      <span className="text-xs font-mono font-semibold text-rose-700 uppercase">Low Stock Trigger</span>
-                      <Flame className="w-4 h-4 text-rose-600" />
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-slate-50 text-slate-500 font-semibold uppercase border-b border-slate-200 tracking-wider">
+                          <tr>
+                            <th className="py-3 px-4">SKU / Barcode</th>
+                            <th className="py-3 px-4">Product Name</th>
+                            <th className="py-3 px-4">Department</th>
+                            <th className="py-3 px-4">Stock</th>
+                            <th className="py-3 px-4">Shelf-Life Remaining</th>
+                            <th className="py-3 px-4">POS Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 font-medium">
+                          <tr className={`transition-colors ${syncFlash ? 'bg-emerald-50/60' : 'bg-amber-50/40 hover:bg-amber-50/60'}`}>
+                            <td className="py-3 px-4 font-mono text-slate-600">APP-BAKE-001</td>
+                            <td className="py-3 px-4 font-bold text-slate-900">Artisan Sourdough Loaf</td>
+                            <td className="py-3 px-4 text-slate-600">Bakery</td>
+                            <td className="py-3 px-4 font-semibold text-amber-800">12 units</td>
+                            <td className="py-3 px-4 font-bold text-amber-700">2 Days Remaining</td>
+                            <td className="py-3 px-4">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                <Tag className="w-3 h-3" /> Flash 30% Markdown Active
+                              </span>
+                            </td>
+                          </tr>
+                          <tr className={`transition-colors ${syncFlash ? 'bg-emerald-50/60' : 'bg-rose-50/30 hover:bg-rose-50/50'}`}>
+                            <td className="py-3 px-4 font-mono text-slate-600">APP-PROD-003</td>
+                            <td className="py-3 px-4 font-bold text-slate-900">Organic Baby Spinach 250g</td>
+                            <td className="py-3 px-4 text-slate-600">Produce</td>
+                            <td className="py-3 px-4 font-semibold text-rose-700">4 packs (Low)</td>
+                            <td className="py-3 px-4 font-semibold text-rose-700">3 Days Remaining</td>
+                            <td className="py-3 px-4">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800">
+                                Low Stock & Near Expiry
+                              </span>
+                            </td>
+                          </tr>
+                          <tr className="hover:bg-slate-50 transition-colors">
+                            <td className="py-3 px-4 font-mono text-slate-600">APP-DAIRY-001</td>
+                            <td className="py-3 px-4 font-bold text-slate-900">Fresh Whole Milk 1L</td>
+                            <td className="py-3 px-4 text-slate-600">Dairy</td>
+                            <td className="py-3 px-4 text-slate-700">45 units</td>
+                            <td className="py-3 px-4 text-slate-600">12 Days Remaining</td>
+                            <td className="py-3 px-4">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+                                Standard Shelf Life
+                              </span>
+                            </td>
+                          </tr>
+                          <tr className="hover:bg-slate-50 transition-colors">
+                            <td className="py-3 px-4 font-mono text-slate-600">APP-PROD-001</td>
+                            <td className="py-3 px-4 font-bold text-slate-900">Crisp Royal Gala Apples 1kg</td>
+                            <td className="py-3 px-4 text-slate-600">Produce</td>
+                            <td className="py-3 px-4 text-slate-700">60 kg</td>
+                            <td className="py-3 px-4 text-slate-600">14 Days Remaining</td>
+                            <td className="py-3 px-4">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+                                Standard Shelf Life
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
-                    <p className="text-2xl font-black text-rose-900 mt-1">4 Items</p>
-                    <span className="text-xs text-rose-600 font-medium">Below safety threshold</span>
                   </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="consumer"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="p-6 md:p-8 space-y-6"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Digital Fridge & Pantry List */}
+                    <div className="md:col-span-2 space-y-4">
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                        <div>
+                          <h3 className="font-bold text-slate-900 text-base">Consumer Pantry Ledger</h3>
+                          <p className="text-xs text-slate-500">Auto-synced at Apple Supermarket checkout register</p>
+                        </div>
+                        <Badge className="bg-slate-900 text-white font-mono text-[11px]">Synced via Invoice #REC-9841</Badge>
+                      </div>
 
-                  <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40">
-                    <div className="flex justify-between items-start">
-                      <span className="text-xs font-mono font-semibold text-emerald-700 uppercase">Recaptured Margin</span>
-                      <DollarSign className="w-4 h-4 text-emerald-600" />
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3.5 rounded-xl border border-amber-200 bg-amber-50/50">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                              <Wheat className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900 text-sm">Artisan Sourdough Loaf</p>
+                              <p className="text-xs text-amber-800 font-medium">Bought at Apple Supermarket • Consume in 48 hours</p>
+                            </div>
+                          </div>
+                          <span className="font-mono text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded">
+                            2 Days Left
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
+                              <Milk className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900 text-sm">Fresh Whole Milk 1L</p>
+                              <p className="text-xs text-slate-500">Bought at Apple Supermarket • Sealed</p>
+                            </div>
+                          </div>
+                          <span className="font-mono text-xs font-semibold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded">
+                            12 Days Left
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                              <Apple className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900 text-sm">Royal Gala Apples 1kg</p>
+                              <p className="text-xs text-slate-500">Pantry produce basket</p>
+                            </div>
+                          </div>
+                          <span className="font-mono text-xs font-semibold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded">
+                            14 Days Left
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-2xl font-black text-emerald-900 mt-1">$1,480.00</p>
-                    <span className="text-xs text-emerald-600 font-medium">MTD via FEFO rotation</span>
-                  </div>
-                </div>
 
-                {/* Real-time Inventory Table */}
-                <div className="rounded-xl border border-slate-200 overflow-hidden">
-                  <div className="p-3.5 bg-slate-100/70 border-b border-slate-200 flex justify-between items-center text-xs">
-                    <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-indigo-600" />
-                      Active Expiration Watchlist (FEFO Queue)
-                    </span>
-                    <span className="font-mono text-slate-500">SORT: EXPIRY_ASC</span>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 text-slate-500 font-semibold uppercase border-b border-slate-200 tracking-wider">
-                        <tr>
-                          <th className="py-3 px-4">SKU / Barcode</th>
-                          <th className="py-3 px-4">Product Name</th>
-                          <th className="py-3 px-4">Department</th>
-                          <th className="py-3 px-4">Stock</th>
-                          <th className="py-3 px-4">Shelf-Life Remaining</th>
-                          <th className="py-3 px-4">POS Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
-                        <tr className="bg-amber-50/40 hover:bg-amber-50/60 transition-colors">
-                          <td className="py-3 px-4 font-mono text-slate-600">APP-BAKE-001</td>
-                          <td className="py-3 px-4 font-bold text-slate-900">Artisan Sourdough Loaf</td>
-                          <td className="py-3 px-4 text-slate-600">Bakery</td>
-                          <td className="py-3 px-4 font-semibold text-amber-800">12 units</td>
-                          <td className="py-3 px-4 font-bold text-amber-700">2 Days Remaining</td>
-                          <td className="py-3 px-4">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                              <Tag className="w-3 h-3" /> Flash 30% Markdown Active
-                            </span>
-                          </td>
-                        </tr>
-                        <tr className="bg-rose-50/30 hover:bg-rose-50/50 transition-colors">
-                          <td className="py-3 px-4 font-mono text-slate-600">APP-PROD-003</td>
-                          <td className="py-3 px-4 font-bold text-slate-900">Organic Baby Spinach 250g</td>
-                          <td className="py-3 px-4 text-slate-600">Produce</td>
-                          <td className="py-3 px-4 font-semibold text-rose-700">4 packs (Low)</td>
-                          <td className="py-3 px-4 font-semibold text-rose-700">3 Days Remaining</td>
-                          <td className="py-3 px-4">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800">
-                              Low Stock & Near Expiry
-                            </span>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 transition-colors">
-                          <td className="py-3 px-4 font-mono text-slate-600">APP-DAIRY-001</td>
-                          <td className="py-3 px-4 font-bold text-slate-900">Fresh Whole Milk 1L</td>
-                          <td className="py-3 px-4 text-slate-600">Dairy</td>
-                          <td className="py-3 px-4 text-slate-700">45 units</td>
-                          <td className="py-3 px-4 text-slate-600">12 Days Remaining</td>
-                          <td className="py-3 px-4">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
-                              Standard Shelf Life
-                            </span>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 transition-colors">
-                          <td className="py-3 px-4 font-mono text-slate-600">APP-PROD-001</td>
-                          <td className="py-3 px-4 font-bold text-slate-900">Crisp Royal Gala Apples 1kg</td>
-                          <td className="py-3 px-4 text-slate-600">Produce</td>
-                          <td className="py-3 px-4 text-slate-700">60 kg</td>
-                          <td className="py-3 px-4 text-slate-600">14 Days Remaining</td>
-                          <td className="py-3 px-4">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
-                              Standard Shelf Life
-                            </span>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* View B: Consumer Digital Pantry (PWA) */}
-            {activeConsoleTab === 'consumer' && (
-              <div className="p-6 md:p-8 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Digital Fridge & Pantry List */}
-                  <div className="md:col-span-2 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                    {/* Customer Budget & Notification Status */}
+                    <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between">
                       <div>
-                        <h3 className="font-bold text-slate-900 text-base">Consumer Pantry Ledger</h3>
-                        <p className="text-xs text-slate-500">Auto-synced at Apple Supermarket checkout register</p>
-                      </div>
-                      <Badge className="bg-slate-900 text-white font-mono text-[11px]">Synced via Invoice #REC-9841</Badge>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3.5 rounded-xl border border-amber-200 bg-amber-50/50">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                            <Wheat className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900 text-sm">Artisan Sourdough Loaf</p>
-                            <p className="text-xs text-amber-800 font-medium">Bought at Apple Supermarket • Consume in 48 hours</p>
-                          </div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-mono font-bold text-slate-500 uppercase">Monthly Grocery Budget</span>
+                          <Receipt className="w-4 h-4 text-slate-600" />
                         </div>
-                        <span className="font-mono text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded">
-                          2 Days Left
-                        </span>
+                        <p className="text-2xl font-black text-slate-900">$340.00 <span className="text-xs font-normal text-slate-500">/ $500 cap</span></p>
+
+                        <div className="w-full h-2 bg-slate-200 rounded-full mt-3 overflow-hidden">
+                          <div className="w-[68%] h-full bg-indigo-600 rounded-full transition-all duration-500" />
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">68% of monthly allocation used</p>
+
+                        <div className="mt-6 p-3 rounded-lg bg-white border border-slate-200 text-xs text-slate-600 space-y-1">
+                          <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                            <Bell className="w-3.5 h-3.5 text-indigo-600" /> Push Expiry Alert Active
+                          </p>
+                          <p>Shopper notified 48h prior to perishable expiry dates to prevent domestic discard.</p>
+                        </div>
                       </div>
 
-                      <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
-                            <Milk className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900 text-sm">Fresh Whole Milk 1L</p>
-                            <p className="text-xs text-slate-500">Bought at Apple Supermarket • Sealed</p>
-                          </div>
-                        </div>
-                        <span className="font-mono text-xs font-semibold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded">
-                          12 Days Left
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                            <Apple className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900 text-sm">Royal Gala Apples 1kg</p>
-                            <p className="text-xs text-slate-500">Pantry produce basket</p>
-                          </div>
-                        </div>
-                        <span className="font-mono text-xs font-semibold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded">
-                          14 Days Left
-                        </span>
-                      </div>
+                      <Link href="/customersignup" className="mt-6">
+                        <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2 rounded-lg">
+                          Create Free Customer Pantry
+                        </Button>
+                      </Link>
                     </div>
                   </div>
-
-                  {/* Customer Budget & Notification Status */}
-                  <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-mono font-bold text-slate-500 uppercase">Monthly Grocery Budget</span>
-                        <Receipt className="w-4 h-4 text-slate-600" />
-                      </div>
-                      <p className="text-2xl font-black text-slate-900">$340.00 <span className="text-xs font-normal text-slate-500">/ $500 cap</span></p>
-
-                      <div className="w-full h-2 bg-slate-200 rounded-full mt-3 overflow-hidden">
-                        <div className="w-[68%] h-full bg-indigo-600 rounded-full" />
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1 font-medium">68% of monthly allocation used</p>
-
-                      <div className="mt-6 p-3 rounded-lg bg-white border border-slate-200 text-xs text-slate-600 space-y-1">
-                        <p className="font-bold text-slate-800 flex items-center gap-1.5">
-                          <Bell className="w-3.5 h-3.5 text-indigo-600" /> Push Expiry Alert Active
-                        </p>
-                        <p>Shopper notified 48h prior to perishable expiry dates to prevent domestic discard.</p>
-                      </div>
-                    </div>
-
-                    <Link href="/customersignup" className="mt-6">
-                      <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2 rounded-lg">
-                        Create Free Customer Pantry
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </section>
@@ -668,29 +718,29 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-xl bg-slate-800/90 border border-slate-700">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl bg-slate-800/90 border border-slate-700 transition-all">
               <span className="font-mono text-3xl font-black text-rose-400">7.8%</span>
               <h3 className="font-bold text-lg text-white mt-2">Average Perishable Shrink</h3>
               <p className="text-slate-400 text-xs mt-2 leading-relaxed">
                 Supermarkets lose 7% to 10% of their fresh produce, dairy, bakery, and meat inventories to unmonitored shelf-life expiration.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-6 rounded-xl bg-slate-800/90 border border-slate-700">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl bg-slate-800/90 border border-slate-700 transition-all">
               <span className="font-mono text-3xl font-black text-amber-400">40x</span>
               <h3 className="font-bold text-lg text-white mt-2">Recovery Revenue Ratio</h3>
               <p className="text-slate-400 text-xs mt-2 leading-relaxed">
                 At a standard 2.5% grocery profit margin, writing off \$1,000 in spoiled stock requires generating \$40,000 in gross sales to offset.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-6 rounded-xl bg-slate-800/90 border border-slate-700">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl bg-slate-800/90 border border-slate-700 transition-all">
               <span className="font-mono text-3xl font-black text-emerald-400">62%</span>
               <h3 className="font-bold text-lg text-white mt-2">Recoverable via FEFO</h3>
               <p className="text-slate-400 text-xs mt-2 leading-relaxed">
                 Automated First-Expired, First-Out alerts and automated step-down promotional markdowns recover up to 62% of at-risk gross revenue.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -711,7 +761,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between transition-all shadow-xs hover:shadow-md">
               <div>
                 <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
                   STEP 01
@@ -725,9 +775,9 @@ export default function Home() {
               <div className="pt-4 mt-6 border-t border-slate-200 text-xs font-medium text-slate-600 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Department-specific expiry rules
               </div>
-            </div>
+            </motion.div>
 
-            <div className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between transition-all shadow-xs hover:shadow-md">
               <div>
                 <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
                   STEP 02
@@ -741,9 +791,9 @@ export default function Home() {
               <div className="pt-4 mt-6 border-t border-slate-200 text-xs font-medium text-slate-600 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Step-down promotional pricing
               </div>
-            </div>
+            </motion.div>
 
-            <div className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between transition-all shadow-xs hover:shadow-md">
               <div>
                 <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
                   STEP 03
@@ -757,7 +807,7 @@ export default function Home() {
               <div className="pt-4 mt-6 border-t border-slate-200 text-xs font-medium text-slate-600 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Multi-document transaction safety
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -935,9 +985,10 @@ export default function Home() {
               { name: 'Household', icon: <PackageCheck className="w-6 h-6 text-slate-700" />, shelf: 'Stable', desc: 'Cleaners, detergents' },
               { name: 'Personal Care', icon: <HeartPulse className="w-6 h-6 text-pink-600" />, shelf: 'Stable', desc: 'Hygiene, toiletries' },
             ].map((dept) => (
-              <div
+              <motion.div
                 key={dept.name}
-                className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-slate-300 hover:bg-slate-50 transition-all text-left"
+                whileHover={{ y: -3, scale: 1.02 }}
+                className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-slate-300 hover:bg-slate-50 transition-all text-left shadow-xs cursor-default"
               >
                 <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center mb-3">
                   {dept.icon}
@@ -945,7 +996,7 @@ export default function Home() {
                 <h3 className="font-bold text-slate-900 text-xs">{dept.name}</h3>
                 <span className="font-mono text-[10px] font-semibold text-slate-500 block mt-0.5">{dept.shelf}</span>
                 <p className="text-[11px] text-slate-500 mt-1">{dept.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -955,29 +1006,29 @@ export default function Home() {
       <section className="py-16 bg-slate-50 border-b border-slate-200 px-4 md:px-8">
         <div className="container mx-auto max-w-5xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-            <div className="p-4 rounded-xl bg-white border border-slate-200 text-left">
+            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-slate-200 text-left transition-all shadow-xs hover:shadow-md">
               <Database className="w-5 h-5 text-indigo-600 mb-2" />
               <h4 className="font-bold text-slate-900 text-sm">ACID Transaction Safety</h4>
               <p className="text-xs text-slate-500 mt-1">Multi-document MongoDB transactions prevent race conditions during POS stock deduction.</p>
-            </div>
+            </motion.div>
 
-            <div className="p-4 rounded-xl bg-white border border-slate-200 text-left">
+            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-slate-200 text-left transition-all shadow-xs hover:shadow-md">
               <Zap className="w-5 h-5 text-indigo-600 mb-2" />
               <h4 className="font-bold text-slate-900 text-sm">Sub-50ms API Response</h4>
               <p className="text-xs text-slate-500 mt-1">Serverless Vercel edge deployment backed by in-memory Redis keyset caching.</p>
-            </div>
+            </motion.div>
 
-            <div className="p-4 rounded-xl bg-white border border-slate-200 text-left">
+            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-slate-200 text-left transition-all shadow-xs hover:shadow-md">
               <ShieldCheck className="w-5 h-5 text-indigo-600 mb-2" />
               <h4 className="font-bold text-slate-900 text-sm">Multi-Tenant Scoping</h4>
               <p className="text-xs text-slate-500 mt-1">Strict storeId isolation prevents any cross-store data leakage or cross-inventory viewing.</p>
-            </div>
+            </motion.div>
 
-            <div className="p-4 rounded-xl bg-white border border-slate-200 text-left">
+            <motion.div whileHover={{ y: -3 }} className="p-4 rounded-xl bg-white border border-slate-200 text-left transition-all shadow-xs hover:shadow-md">
               <Accessibility className="w-5 h-5 text-indigo-600 mb-2" />
               <h4 className="font-bold text-slate-900 text-sm">WCAG 2.1 AA Compliance</h4>
               <p className="text-xs text-slate-500 mt-1">Audited with Axe Core with 0 automated accessibility violations on screen readers.</p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -1014,11 +1065,21 @@ export default function Home() {
                       }`}
                     />
                   </button>
-                  {isOpen && (
-                    <div className="px-5 pb-5 text-slate-600 text-xs md:text-sm leading-relaxed border-t border-slate-100 pt-3 bg-slate-50/40">
-                      {faq.a}
-                    </div>
-                  )}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.22, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-5 pb-5 text-slate-600 text-xs md:text-sm leading-relaxed border-t border-slate-100 pt-3 bg-slate-50/40">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}

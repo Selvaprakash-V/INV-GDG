@@ -1,5 +1,6 @@
 import './globals.css';
 import { Providers } from './providers';
+import NavigationLoader from '@/components/NavigationLoader';
 
 export const metadata = {
   title: 'TrackIt - Supermarket Management System',
@@ -8,8 +9,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="scroll-smooth">
+      <body className="antialiased selection:bg-purple-100 selection:text-purple-900">
+        <NavigationLoader />
         <Providers>{children}</Providers>
       </body>
     </html>

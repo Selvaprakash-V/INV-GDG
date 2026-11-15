@@ -104,8 +104,15 @@ export function toAppError(err) {
   if (err?.name === 'CastError') {
     return new ValidationError(`Invalid value for ${err.path}`);
   }
-  if (err?.name === 'MongoServerSelectionError' || err?.name === 'MongoNetworkError') {
-    return new ServiceUnavailableError('Database unavailable');
+  if (
+    err?.name === 'MongoServerSelectionError' ||
+    err?.name === 'MongoNetworkError' ||
+    err?.name === 'MongooseServerSelectionError' ||
+    err?.cause?.name === 'MongoServerSelectionError' ||
+    err?.message?.includes('buffering timed out') ||
+    err?.message?.includes('Server selection timed out')
+  ) {
+    return new ServiceUnavailableError('Database unavailable. Please check MongoDB connection.');
   }
   return new AppError(err?.message || 'Internal error', { expose: false });
 }

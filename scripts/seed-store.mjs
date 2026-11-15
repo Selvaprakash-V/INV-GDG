@@ -2,12 +2,11 @@
 /**
  * Seeds 50 realistic supermarket products for a store admin.
  * Usage:
- *   node scripts/seed-store.mjs "<MONGODB_URI>" "Apple Supermarket"
- * or if MONGODB_URI is in process.env:
- *   node scripts/seed-store.mjs
+ *   node scripts/seed-store.mjs "<MONGODB_URI>" [shopName]
  */
 
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const DEFAULT_SHOP_NAME = 'Apple Supermarket';
 const MONGODB_URI = process.argv[2] || process.env.MONGODB_URI;
@@ -97,9 +96,9 @@ export const SAMPLE_PRODUCTS = [
 ];
 
 async function seed() {
-  console.log(`Connecting to MongoDB...`);
+  console.log('Connecting to MongoDB Atlas...');
   await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
-  console.log(`Connected successfully.`);
+  console.log('Connected successfully to Atlas.');
 
   const db = mongoose.connection.db;
   const usersCollection = db.collection('users');
@@ -113,17 +112,38 @@ async function seed() {
     admin = await usersCollection.findOne({ email: /suriyaprakash/i, role: 'Administrator' });
   }
 
+  // If still not found, automatically register the administrator account
   if (!admin) {
-    // If not found, list available admins
-    const admins = await usersCollection.find({ role: 'Administrator' }).toArray();
-    console.error(`Could not find administrator matching "${TARGET_SHOP}".`);
-    console.log(`Available administrators in database (${admins.length}):`);
-    admins.forEach((a) => console.log(` - ID: ${a._id}, Shop: "${a.shopName}", Email: "${a.email}"`));
-    await mongoose.disconnect();
-    process.exit(1);
+    console.log(`Administrator for "${TARGET_SHOP}" not found in database.`);
+    console.log(`Auto-creating administrator account for "${TARGET_SHOP}"...`);
+    const defaultPassword = 'Password123!';
+    const hashedPassword = await bcrypt.hash(defaultPassword, 12);
+    
+    const newAdmin = {
+      fullName: 'Suriya Prakash R M',
+      email: 'suriyaprakashrm25@gmail.com',
+      password: hashedPassword,
+      role: 'Administrator',
+      shopName: TARGET_SHOP,
+      notificationSettings: {
+        expiryThresholdDays: 7,
+        emailEnabled: true,
+        dailyDigest: true,
+      },
+      budget: { monthly: 500, weekly: 150 },
+      createdAt: now,
+      updatedAt: now,
+    };
+    
+    const insertRes = await usersCollection.insertOne(newAdmin);
+    admin = { ...newAdmin, _id: insertRes.insertedId };
+    console.log(`Successfully created administrator!`);
+    console.log(` -> Email: suriyaprakashrm25@gmail.com`);
+    console.log(` -> Temporary Password: ${defaultPassword} (you can change it anytime in /account)`);
   }
 
-  console.log(`Found store: "${admin.shopName}" (Admin ID: ${admin._id}, Email: ${admin.email})`);
+  console.log(`\nFound store: "${admin.shopName}" (Admin ID: ${admin._id}, Email: ${admin.email})`);
+  console.log(`Inserting 50 sample products...`);
 
   let added = 0;
   let skipped = 0;
@@ -132,7 +152,6 @@ async function seed() {
     const { daysToExpiry, ...prod } = item;
     const expiryDate = inDays(daysToExpiry);
 
-    // Upsert or insert if not exists by storeId + barcode
     const existing = await productsCollection.findOne({ storeId: admin._id, barcode: prod.barcode });
     if (existing) {
       skipped += 1;
@@ -152,7 +171,7 @@ async function seed() {
   }
 
   console.log(`\n======================================================`);
-  console.log(`Seeding completed for "${admin.shopName}":`);
+  console.log(`SUCCESS! 50 Supermarket Products Seeded for "${admin.shopName}":`);
   console.log(` -> Products added:   ${added}`);
   console.log(` -> Products skipped: ${skipped} (already existed)`);
   console.log(` -> Total in catalog: ${added + skipped}`);
